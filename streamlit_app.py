@@ -7,14 +7,13 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# The animated site is served by Streamlit's static file server
-# (enableStaticServing = true in .streamlit/config.toml).
-SITE_URL = "/app/static/animated-site/index.html"
-DASHBOARD_URL = "/app/static/Container_Build_Dashboard_v2.html"
+# Streamlit Community Cloud's proxy currently breaks /app/static file serving
+# (their own static-file-serving demo app is broken the same way), so the
+# static site is hosted on GitHub Pages and embedded here.
+PAGES_BASE = "https://dvdlkj-glitch.github.io/container-building-website"
+SITE_URL = f"{PAGES_BASE}/static/animated-site/index.html"
+DASHBOARD_URL = f"{PAGES_BASE}/static/Container_Build_Dashboard_v2.html"
 
-# Full-bleed layout: hide Streamlit chrome, remove page padding, and embed
-# the site as a main-document iframe (same origin, session cookies included —
-# unlike components.iframe, this also works while the app is private).
 st.markdown(
     f"""
     <style>
