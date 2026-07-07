@@ -1,5 +1,4 @@
 import streamlit as st
-import streamlit.components.v1 as components
 
 st.set_page_config(
     page_title="Sabah Container Solutions",
@@ -8,29 +7,26 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# Full-bleed layout: hide Streamlit chrome and remove page padding
-st.markdown(
-    """
-    <style>
-      #MainMenu, header, footer {visibility: hidden;}
-      .block-container {padding: 0 !important; max-width: 100% !important;}
-      [data-testid="stVerticalBlock"] {gap: 0 !important;}
-      iframe {display: block; border: none;}
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
 # The animated site is served by Streamlit's static file server
 # (enableStaticServing = true in .streamlit/config.toml).
 SITE_URL = "/app/static/animated-site/index.html"
 DASHBOARD_URL = "/app/static/Container_Build_Dashboard_v2.html"
 
-components.iframe(SITE_URL, height=950, scrolling=True)
-
+# Full-bleed layout: hide Streamlit chrome, remove page padding, and embed
+# the site as a main-document iframe (same origin, session cookies included —
+# unlike components.iframe, this also works while the app is private).
 st.markdown(
     f"""
-    <div style="text-align:center; padding:14px; background:#0e0d0c; color:#c8c0b4;
+    <style>
+      #MainMenu, header, footer {{visibility: hidden;}}
+      .stApp {{background: #0e0d0c;}}
+      .block-container {{padding: 0 !important; max-width: 100% !important;}}
+      [data-testid="stVerticalBlock"] {{gap: 0 !important;}}
+    </style>
+    <iframe src="{SITE_URL}"
+            style="width:100%; height:94vh; border:none; display:block; background:#0e0d0c;"
+            allow="fullscreen"></iframe>
+    <div style="text-align:center; padding:12px; background:#0e0d0c; color:#c8c0b4;
                 font-family:sans-serif; font-size:13px;">
       Best experienced full-screen:
       <a href="{SITE_URL}" target="_blank" style="color:#e8792b;">open the animated site</a>
