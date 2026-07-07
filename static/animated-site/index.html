@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sabah Container Solutions — Container Spaces, Built in Weeks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Playfair+Display:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --concrete:#d4cfc8;
+  --concrete-dim:#9e9890;
+  --stone:#706050;
+  --charcoal:#1a1816;
+  --ink:#0e0d0c;
+  --warm-white:#f4f0ea;
+  --warm-white-dim:#c8c0b4;
+  --accent:#e8792b;
+  --accent-glow:rgba(232,121,43,.35);
+  --accent-soft:rgba(232,121,43,.08);
+  --sunset-pink:#d4a0b0;
+  --gold-warm:#c89848;
+  --heading:'Playfair Display','Georgia',serif;
+  --body:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:auto}
+body{
+  font-family:var(--body);
+  background:var(--ink);
+  color:var(--warm-white);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--accent);color:var(--ink)}
+
+/* ---------- custom cursor ---------- */
+#cursor-dot,#cursor-ring{position:fixed;top:0;left:0;pointer-events:none;border-radius:50%;transform:translate(-50%,-50%);}
+#cursor-dot{width:6px;height:6px;background:#fff;mix-blend-mode:difference;z-index:9998}
+#cursor-ring{width:36px;height:36px;border:1px solid rgba(244,240,234,.35);z-index:9997;transition:width .3s ease,height .3s ease,border-color .3s ease,box-shadow .3s ease}
+#cursor-ring.hovering{width:56px;height:56px;border-color:var(--accent);box-shadow:0 0 24px var(--accent-glow)}
+@media(hover:none),(max-width:768px){#cursor-dot,#cursor-ring{display:none}}
+
+/* ---------- film grain + vignette ---------- */
+.grain{position:fixed;inset:0;z-index:100;pointer-events:none;opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:256px 256px;}
+.vignette{position:fixed;inset:0;z-index:99;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 50%,rgba(14,13,12,.45) 100%);}
+
+/* ---------- particles ---------- */
+#particles{position:fixed;inset:0;z-index:15;pointer-events:none;opacity:.4}
+
+/* ---------- loader ---------- */
+#loader{position:fixed;inset:0;z-index:9999;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;transition:opacity .8s ease,filter .8s ease}
+#loader.hidden{opacity:0;filter:blur(8px);pointer-events:none}
+#loader .brand{font-family:var(--heading);font-weight:300;font-size:clamp(20px,3vw,30px);letter-spacing:.45em;text-transform:uppercase;color:var(--warm-white);padding-left:.45em}
+#loader .line{width:52px;height:1px;background:linear-gradient(90deg,transparent,var(--stone),transparent)}
+#loader .sub{font-size:9px;letter-spacing:.35em;text-transform:uppercase;color:var(--concrete-dim);padding-left:.35em}
+#loader .bar{width:140px;height:1px;background:rgba(244,240,234,.1);overflow:hidden;border-radius:1px}
+#loader .bar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--sunset-pink));transition:width .2s ease}
+#loader .pct{font-size:10px;letter-spacing:.25em;color:var(--concrete-dim);font-variant-numeric:tabular-nums}
+
+/* ---------- chapter markers ---------- */
+#chapters{position:fixed;right:26px;top:50%;transform:translateY(-50%);z-index:50;display:flex;flex-direction:column;align-items:center;opacity:0;transition:opacity .6s ease}
+#chapters.visible{opacity:1}
+#chapters .ch{display:flex;align-items:center;position:relative}
+#chapters .dot{width:7px;height:7px;border-radius:50%;background:rgba(244,240,234,.22);transition:background .4s,box-shadow .4s;cursor:pointer}
+#chapters .ch.active .dot{background:var(--accent);box-shadow:0 0 12px var(--accent-glow)}
+#chapters .conn{width:1px;height:34px;background:rgba(244,240,234,.12);position:relative;overflow:hidden}
+#chapters .conn i{position:absolute;top:0;left:0;width:100%;height:0%;background:var(--accent)}
+#chapters .lbl{position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:8.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--concrete-dim);white-space:nowrap;opacity:0;transition:opacity .3s}
+#chapters .ch:hover .lbl,#chapters .ch.active .lbl{opacity:1}
+@media(max-width:768px){#chapters{display:none}}
+
+/* ---------- animation section ---------- */
+#anim{position:relative;height:620vh}
+#canvas-wrap{position:sticky;top:0;height:100vh;overflow:hidden}
+#frame-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+.ov-left{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(100deg,rgba(14,13,12,.72) 0%,rgba(14,13,12,.38) 34%,transparent 62%)}
+.ov-bottom{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to top,rgba(14,13,12,.65) 0%,transparent 26%)}
+#tint{position:absolute;inset:0;z-index:5;pointer-events:none;transition:background 1.2s ease}
+
+/* ---------- scroll text sections ---------- */
+.scroll-text{position:fixed;top:0;left:0;width:100%;height:100vh;z-index:10;display:flex;flex-direction:column;justify-content:center;padding-left:6%;pointer-events:none;opacity:0;filter:blur(6px);transform:translateX(-20px);transition:opacity .9s ease,filter .9s ease,transform .9s ease;visibility:hidden}
+.scroll-text.visible{opacity:1;filter:blur(0);transform:translateX(0);visibility:visible;pointer-events:auto}
+.scroll-text .inner{max-width:560px}
+.overline{font-size:11px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.overline::before{content:'';width:26px;height:1px;background:var(--accent);opacity:.6}
+.st-title{font-family:var(--heading);font-weight:300;font-size:clamp(34px,4.2vw,56px);line-height:1.12;color:var(--warm-white)}
+.st-title em{font-style:italic;color:var(--warm-white-dim)}
+.st-body{font-size:16.5px;font-weight:300;line-height:1.75;color:var(--warm-white-dim);margin-top:18px;max-width:500px}
+
+/* hero */
+#st-hero .kicker{font-size:12px;letter-spacing:.4em;text-transform:uppercase;color:var(--concrete-dim);margin-bottom:20px}
+#st-hero h1{font-family:var(--heading);font-weight:300;font-size:clamp(48px,6.2vw,86px);line-height:1.04;color:var(--warm-white)}
+#st-hero h1 .char{display:inline-block;opacity:0;transform:translateY(26px) rotate(3deg);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.3,1)}
+#st-hero.visible h1 .char{opacity:1;transform:none}
+#st-hero h1 em{font-style:italic;color:var(--accent)}
+#st-hero .tagline{font-size:17px;font-weight:300;letter-spacing:.04em;color:var(--warm-white-dim);margin-top:20px;max-width:520px;line-height:1.7}
+.stat-bar{position:absolute;left:6%;right:6%;bottom:44px;display:flex;gap:0;background:rgba(244,240,234,.03);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(244,240,234,.06);border-radius:14px;overflow:hidden}
+.stat-bar .cell{flex:1;padding:20px 26px;border-right:1px solid rgba(244,240,234,.06)}
+.stat-bar .cell:last-child{border-right:none}
+.stat-bar .num{font-family:var(--heading);font-weight:400;font-size:clamp(24px,2.6vw,34px);color:var(--warm-white);font-variant-numeric:tabular-nums}
+.stat-bar .num b{color:var(--accent);font-weight:400}
+.stat-bar .cap{font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--concrete-dim);margin-top:6px}
+@media(max-width:768px){.stat-bar{flex-wrap:wrap;bottom:24px}.stat-bar .cell{flex:1 1 44%;padding:13px 16px;border-bottom:1px solid rgba(244,240,234,.06)}}
+
+/* vision */
+#st-vision .qmark{font-family:var(--heading);font-size:110px;line-height:.6;color:var(--accent);opacity:.5;margin-bottom:14px}
+#st-vision blockquote{font-family:var(--heading);font-style:italic;font-weight:300;font-size:clamp(28px,3.4vw,44px);line-height:1.32;color:var(--warm-white);max-width:640px}
+#st-vision .div{width:56px;height:1px;background:var(--accent);opacity:.6;margin:26px 0 14px}
+#st-vision .attr{font-size:11.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--concrete-dim)}
+
+/* details — indication callouts */
+.callouts{margin-top:30px;display:flex;flex-direction:column;gap:0}
+.co-item{display:flex;align-items:flex-start;gap:18px;padding:14px 0;border-bottom:1px solid rgba(244,240,234,.07);opacity:0;transform:translateX(-14px);transition:opacity .7s ease,transform .7s ease}
+.scroll-text.visible .co-item{opacity:1;transform:none}
+.scroll-text.visible .co-item:nth-child(1){transition-delay:.15s}
+.scroll-text.visible .co-item:nth-child(2){transition-delay:.28s}
+.scroll-text.visible .co-item:nth-child(3){transition-delay:.41s}
+.scroll-text.visible .co-item:nth-child(4){transition-delay:.54s}
+.scroll-text.visible .co-item:nth-child(5){transition-delay:.67s}
+.scroll-text.visible .co-item:nth-child(6){transition-delay:.8s}
+.co-ind{position:relative;flex-shrink:0;width:44px;height:14px;margin-top:4px}
+.co-ind::after{content:'';position:absolute;left:14px;top:6px;right:0;height:1px;background:linear-gradient(90deg,var(--accent),transparent)}
+.co-dot{position:absolute;left:0;top:0;width:13px;height:13px;border-radius:50%;border:1px solid var(--accent)}
+.co-dot::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--accent);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+.co-txt .t{font-size:15px;font-weight:500;letter-spacing:.06em;color:var(--warm-white)}
+.co-txt .s{font-size:13px;font-weight:300;color:var(--concrete-dim);margin-top:2px;line-height:1.5}
+
+/* grid */
+.amen-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:28px;max-width:620px}
+.amen{background:rgba(244,240,234,.03);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(244,240,234,.06);border-radius:12px;padding:16px 18px;transition:background .4s,border-color .4s}
+.amen:hover{background:rgba(244,240,234,.06);border-color:rgba(232,121,43,.3)}
+.amen .badge{font-family:var(--heading);font-size:17px;color:var(--accent);margin-bottom:7px}
+.amen .t{font-size:14px;font-weight:500;letter-spacing:.05em;color:var(--warm-white)}
+.amen .s{font-size:12px;font-weight:300;color:var(--concrete-dim);margin-top:3px;line-height:1.5}
+.amen .p{font-size:11.5px;letter-spacing:.14em;color:var(--gold-warm);margin-top:7px;font-variant-numeric:tabular-nums}
+@media(max-width:768px){.amen-grid{grid-template-columns:1fr}}
+
+/* context */
+.dist-list{margin-top:26px;max-width:460px}
+.dist{display:flex;align-items:baseline;gap:10px;padding:11px 0;font-size:15px}
+.dist .a{color:var(--warm-white-dim);font-weight:400;white-space:nowrap}
+.dist .dots{flex:1;border-bottom:1px dotted rgba(244,240,234,.2);transform:translateY(-3px)}
+.dist .b{color:var(--concrete-dim);font-weight:300;white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* cta */
+#st-cta{padding-left:0;align-items:center;text-align:center}
+#st-cta .inner{max-width:680px;display:flex;flex-direction:column;align-items:center}
+#st-cta .st-title{font-size:clamp(38px,5vw,66px)}
+#st-cta .st-body{margin:18px auto 0;text-align:center}
+.cta-btns{display:flex;gap:14px;margin-top:34px;flex-wrap:wrap;justify-content:center}
+.btn{font-family:var(--body);font-size:12.5px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;padding:17px 36px;border-radius:60px;cursor:pointer;text-decoration:none;transition:all .35s ease;display:inline-block}
+.btn-primary{background:var(--accent);color:var(--ink);border:1px solid var(--accent)}
+.btn-primary:hover{background:#f0913f;box-shadow:0 8px 32px var(--accent-glow);transform:translateY(-2px)}
+.btn-ghost{background:transparent;color:var(--warm-white);border:1px solid rgba(244,240,234,.25)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
+.agent-card{margin-top:40px;display:flex;align-items:center;gap:16px;background:rgba(244,240,234,.03);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(244,240,234,.06);border-radius:14px;padding:16px 26px}
+.agent-card .avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#f0913f);display:flex;align-items:center;justify-content:center;font-family:var(--heading);font-size:19px;color:#fff}
+.agent-card .n{font-size:14.5px;font-weight:500;color:var(--warm-white);text-align:left}
+.agent-card .r{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--concrete-dim);margin-top:3px;text-align:left}
+
+/* ---------- scroll hint ---------- */
+#scroll-hint{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:12;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;transition:opacity .8s ease;pointer-events:none}
+#scroll-hint.visible{opacity:.7}
+#scroll-hint .txt{font-size:8.5px;letter-spacing:.32em;text-transform:uppercase;color:var(--concrete-dim)}
+#scroll-hint .wheel{width:1px;height:34px;background:rgba(244,240,234,.15);position:relative;overflow:hidden}
+#scroll-hint .wheel::after{content:'';position:absolute;top:-10px;left:0;width:100%;height:10px;background:var(--accent);animation:drop 1.8s ease-in-out infinite}
+@keyframes drop{0%{top:-10px}70%,100%{top:36px}}
+@media(max-width:768px){#scroll-hint{display:none}}
+
+/* ---------- gallery ---------- */
+#gallery{position:relative;background:var(--ink);padding:110px 6% 90px;z-index:20}
+#gallery .g-head{max-width:620px;margin-bottom:56px}
+.g-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:230px;gap:14px}
+.g-item{border-radius:14px;overflow:hidden;position:relative;opacity:0;transform:translateY(36px);transition:opacity 1s ease,transform 1s cubic-bezier(.2,.7,.3,1)}
+.g-item.revealed{opacity:1;transform:none}
+.g-item.tall{grid-row:span 2}
+.g-item img{width:100%;height:100%;object-fit:cover;transition:transform .8s ease;will-change:transform}
+.g-item:hover img{transform:scale(1.03)}
+.g-item .cap{position:absolute;left:16px;bottom:14px;font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--warm-white);opacity:0;transition:opacity .4s;text-shadow:0 1px 8px rgba(0,0,0,.8)}
+.g-item:hover .cap{opacity:.9}
+.g-item::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(14,13,12,.35),transparent 40%);opacity:0;transition:opacity .4s}
+.g-item:hover::after{opacity:1}
+@media(max-width:768px){.g-grid{grid-template-columns:1fr 1fr;grid-auto-rows:160px}}
+
+/* ---------- footer ---------- */
+footer{background:var(--charcoal);padding:56px 6% 44px;display:flex;flex-direction:column;align-items:center;gap:14px}
+footer .fb{font-family:var(--heading);font-weight:300;font-size:23px;letter-spacing:.3em;text-transform:uppercase;color:var(--warm-white);padding-left:.3em}
+footer .fl{font-size:11.5px;font-weight:300;letter-spacing:.08em;color:var(--concrete-dim);text-align:center;line-height:1.8}
+footer a{color:var(--warm-white-dim);text-decoration:none;border-bottom:1px solid rgba(244,240,234,.2)}
+footer a:hover{color:var(--accent);border-color:var(--accent)}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+@media(max-width:768px){
+  .scroll-text{padding-left:7%;padding-right:7%}
+  .st-body{font-size:14.5px}
+  .callouts{margin-top:20px}
+  .co-item{padding:10px 0}
+}
+</style>
+</head>
+<body>
+
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+<div class="grain"></div>
+<div class="vignette"></div>
+<canvas id="particles"></canvas>
+
+<!-- loader -->
+<div id="loader">
+  <div class="line"></div>
+  <div class="brand">Sabah Container</div>
+  <div class="sub">Design &middot; Estimate &middot; Build &middot; Kota Kinabalu</div>
+  <div class="line"></div>
+  <div class="bar"><i id="load-fill"></i></div>
+  <div class="pct" id="load-pct">0%</div>
+</div>
+
+<!-- chapter markers -->
+<div id="chapters">
+  <div class="ch" data-ch="0"><span class="lbl">Overview</span><span class="dot"></span></div>
+  <div class="conn"><i></i></div>
+  <div class="ch" data-ch="1"><span class="lbl">Vision</span><span class="dot"></span></div>
+  <div class="conn"><i></i></div>
+  <div class="ch" data-ch="2"><span class="lbl">Build Anatomy</span><span class="dot"></span></div>
+  <div class="conn"><i></i></div>
+  <div class="ch" data-ch="3"><span class="lbl">Concept Range</span><span class="dot"></span></div>
+  <div class="conn"><i></i></div>
+  <div class="ch" data-ch="4"><span class="lbl">Timeline</span><span class="dot"></span></div>
+  <div class="conn"><i></i></div>
+  <div class="ch" data-ch="5"><span class="lbl">Estimate</span><span class="dot"></span></div>
+</div>
+
+<div id="scroll-hint">
+  <div class="txt">Scroll to build</div>
+  <div class="wheel"></div>
+</div>
+
+<!-- ============ SCROLL ANIMATION ============ -->
+<section id="anim">
+  <div id="canvas-wrap">
+    <canvas id="frame-canvas"></canvas>
+    <div class="ov-left"></div>
+    <div class="ov-bottom"></div>
+    <div id="tint"></div>
+  </div>
+
+  <!-- 1 · HERO -->
+  <div class="scroll-text" id="st-hero" data-show-at="0" data-hide-at="0.13">
+    <div class="inner">
+      <div class="kicker">Kota Kinabalu &middot; Sabah &middot; Design &amp; Build</div>
+      <h1 data-split>Sabah <em>Container</em></h1>
+      <div class="tagline">Container spaces for every business — designed, costed and tracked. From a site store to a tourist food street, built in weeks, not years.</div>
+    </div>
+    <div class="stat-bar">
+      <div class="cell"><div class="num" data-target="18">0</div><div class="cap">Build Packages</div></div>
+      <div class="cell"><div class="num" data-target="6">0</div><div class="cap">Concept Groups</div></div>
+      <div class="cell"><div class="num">MYR <b data-target="16">0</b>k</div><div class="cap">Builds From</div></div>
+      <div class="cell"><div class="num"><b>A–F</b></div><div class="cap">Catalog Range</div></div>
+    </div>
+  </div>
+
+  <!-- 2 · VISION -->
+  <div class="scroll-text" id="st-vision" data-show-at="0.15" data-hide-at="0.28">
+    <div class="inner">
+      <div class="qmark">&ldquo;</div>
+      <blockquote>Every steel box carries a business waiting to open — a cafe, a clinic, a food street under the Borneo sky.</blockquote>
+      <div class="div"></div>
+      <div class="attr">Sabah Container Solutions — Design Studio</div>
+    </div>
+  </div>
+
+  <!-- 3 · DETAILS / BUILD ANATOMY with indication callouts -->
+  <div class="scroll-text" id="st-details" data-show-at="0.30" data-hide-at="0.44">
+    <div class="inner">
+      <div class="overline">Build Anatomy — Detail Indication</div>
+      <div class="st-title">Every layer, <em>accounted for.</em></div>
+      <div class="st-body">Each package carries an itemised bill of materials, so the estimate reconciles to the catalog price — nothing hidden inside the steel.</div>
+      <div class="callouts">
+        <div class="co-item"><div class="co-ind"><div class="co-dot"></div></div><div class="co-txt"><div class="t">ISO Container Shell</div><div class="s">New or used 20ft / 40ft shell — the structural heart of every build</div></div></div>
+        <div class="co-item"><div class="co-ind"><div class="co-dot"></div></div><div class="co-txt"><div class="t">Structural Reinforcement</div><div class="s">Steel framing around cut openings, angle bar &amp; SHS bracing</div></div></div>
+        <div class="co-item"><div class="co-ind"><div class="co-dot"></div></div><div class="co-txt"><div class="t">Insulation &amp; Lining</div><div class="s">PU / rockwool core, gypsum or calcium silicate internal walls</div></div></div>
+        <div class="co-item"><div class="co-ind"><div class="co-dot"></div></div><div class="co-txt"><div class="t">Frontage &amp; Glazing</div><div class="s">Folding service windows, tempered glass, aluminium frames</div></div></div>
+        <div class="co-item"><div class="co-ind"><div class="co-dot"></div></div><div class="co-txt"><div class="t">Electrical &amp; Cooling</div><div class="s">Full DB box, LED circuits, air-conditioning &amp; equipment sockets</div></div></div>
+        <div class="co-item"><div class="co-ind"><div class="co-dot"></div></div><div class="co-txt"><div class="t">Rust Protection &amp; Finish</div><div class="s">Anti-rust primer, epoxy coating, branding paint or timber-look facade</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 · GRID / CONCEPT GROUPS -->
+  <div class="scroll-text" id="st-grid" data-show-at="0.46" data-hide-at="0.60">
+    <div class="inner" style="max-width:660px">
+      <div class="overline">The Catalog — Groups A to F</div>
+      <div class="st-title">Six concepts, <em>eighteen builds.</em></div>
+      <div class="amen-grid">
+        <div class="amen"><div class="badge">A</div><div class="t">Shipping Container Solutions</div><div class="s">Retail kiosks, site offices, showrooms</div><div class="p">MYR 45k – 180k</div></div>
+        <div class="amen"><div class="badge">B</div><div class="t">Folding Container House</div><div class="s">Dormitories, canteens, site stores</div><div class="p">MYR 16k – 55k</div></div>
+        <div class="amen"><div class="badge">C</div><div class="t">Container Modular House</div><div class="s">Studio cabins, homes, classrooms &amp; clinics</div><div class="p">MYR 90k – 320k</div></div>
+        <div class="amen"><div class="badge">D</div><div class="t">Business in a Container</div><div class="s">Cafes, bubble-tea kiosks, mini marts</div><div class="p">MYR 55k – 130k</div></div>
+        <div class="amen"><div class="badge">E</div><div class="t">Container Food Street</div><div class="s">4–8 unit food courts &amp; tourist markets</div><div class="p">MYR 280k – 1.1M</div></div>
+        <div class="amen"><div class="badge">F</div><div class="t">Multi-Container Module</div><div class="s">2-storey offices, hostels, co-working hubs</div><div class="p">MYR 380k – 1.2M</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 · CONTEXT / TIMELINE -->
+  <div class="scroll-text" id="st-context" data-show-at="0.62" data-hide-at="0.76">
+    <div class="inner">
+      <div class="overline">From Quote to Keys</div>
+      <div class="st-title">Weeks on site, <em>not years.</em></div>
+      <div class="st-body">Fabrication happens in the yard while your site is prepared — then the finished unit arrives by crane, is levelled, connected and opened.</div>
+      <div class="dist-list">
+        <div class="dist"><span class="a">Design &amp; itemised estimate</span><span class="dots"></span><span class="b">Minutes</span></div>
+        <div class="dist"><span class="a">Quotation &amp; confirmation</span><span class="dots"></span><span class="b">Same day</span></div>
+        <div class="dist"><span class="a">Yard fabrication</span><span class="dots"></span><span class="b">1 – 22 weeks</span></div>
+        <div class="dist"><span class="a">Site setup &amp; crane placement</span><span class="dots"></span><span class="b">0.5 day – 8 weeks</span></div>
+        <div class="dist"><span class="a">Delivery coverage</span><span class="dots"></span><span class="b">All Sabah</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6 · CTA -->
+  <div class="scroll-text" id="st-cta" data-show-at="0.82" data-hide-at="1">
+    <div class="inner">
+      <div class="overline" style="justify-content:center">Ready When You Are</div>
+      <div class="st-title">Estimate your build <em>tonight.</em></div>
+      <div class="st-body">Open the build dashboard — pick a package, add options, capture the client and generate a quotation in minutes.</div>
+      <div class="cta-btns">
+        <a class="btn btn-primary" href="../Container_Build_Dashboard_v2.html">Open Build Dashboard</a>
+        <a class="btn btn-ghost" href="https://wa.me/60139915768" target="_blank" rel="noopener">WhatsApp Us</a>
+      </div>
+      <div class="agent-card">
+        <div class="avatar">S</div>
+        <div>
+          <div class="n">Sabah Container Solutions</div>
+          <div class="r">Design &middot; Estimate &middot; Quote &middot; Build Tracking &middot; Kota Kinabalu</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GALLERY ============ -->
+<section id="gallery">
+  <div class="g-head">
+    <div class="overline">On Site</div>
+    <div class="st-title">The build, <em>frame by frame.</em></div>
+    <div class="st-body">Moments from the construction yard — steel arriving, openings cut, spaces taking shape.</div>
+  </div>
+  <div class="g-grid">
+    <div class="g-item tall" data-parallax="-14"><img loading="lazy" src="" data-frame="1" alt="Container construction site"><span class="cap">Arrival</span></div>
+    <div class="g-item" data-parallax="10"><img loading="lazy" src="" data-frame="20" alt="Container yard overview"><span class="cap">The Yard</span></div>
+    <div class="g-item" data-parallax="-8"><img loading="lazy" src="" data-frame="38" alt="Container structure"><span class="cap">Structure</span></div>
+    <div class="g-item tall" data-parallax="12"><img loading="lazy" src="" data-frame="56" alt="Container detail"><span class="cap">Detail</span></div>
+    <div class="g-item" data-parallax="-10"><img loading="lazy" src="" data-frame="74" alt="Container closeup"><span class="cap">Close Up</span></div>
+    <div class="g-item" data-parallax="8"><img loading="lazy" src="" data-frame="92" alt="Container assembly"><span class="cap">Assembly</span></div>
+    <div class="g-item" data-parallax="-6"><img loading="lazy" src="" data-frame="111" alt="Container finished view"><span class="cap">Taking Shape</span></div>
+  </div>
+</section>
+
+<footer>
+  <div class="fb">Sabah Container</div>
+  <div class="fl">
+    Sabah Container Solutions &middot; Kota Kinabalu, Sabah &middot; Indicative concept pricing — not a formal quotation.<br>
+    <a href="../Container_Build_Dashboard_v2.html">Catalog &amp; Estimator Dashboard</a>
+  </div>
+</footer>
+
+<script>
+/* ============ CONFIG ============ */
+const FRAME_COUNT = 112;
+const IS_MOBILE = window.innerWidth < 768;
+const FRAME_DIR = IS_MOBILE ? 'frames/mobile' : 'frames/desktop';
+const LERP_FACTOR = 0.09;
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const framePath = i => `${FRAME_DIR}/frame-${String(i).padStart(4,'0')}.webp`;
+
+/* ============ CUSTOM CURSOR ============ */
+(() => {
+  const dot = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  if (!matchMedia('(hover:hover)').matches) return;
+  let mx=-100,my=-100,rx=-100,ry=-100;
+  addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; dot.style.transform=`translate(${mx}px,${my}px) translate(-50%,-50%)`; });
+  (function loop(){ rx+=(mx-rx)*0.15; ry+=(my-ry)*0.15; ring.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`; requestAnimationFrame(loop); })();
+  document.addEventListener('mouseover', e => {
+    ring.classList.toggle('hovering', !!e.target.closest('a,button,.amen,.g-item,.ch'));
+  });
+})();
+
+/* ============ PARTICLES ============ */
+(() => {
+  if (REDUCED) return;
+  const c = document.getElementById('particles'), x = c.getContext('2d');
+  let W,H, ps=[];
+  const N = IS_MOBILE ? 18 : 40;
+  function size(){ W=c.width=innerWidth; H=c.height=innerHeight; }
+  size(); addEventListener('resize', size);
+  for(let i=0;i<N;i++) ps.push({ x:Math.random()*innerWidth, y:Math.random()*innerHeight, r:0.3+Math.random()*1.5, vx:(Math.random()-.5)*0.18, vy:(Math.random()-.5)*0.14, o:0.05+Math.random()*0.3 });
+  (function loop(){
+    x.clearRect(0,0,W,H);
+    for(const p of ps){
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=W; if(p.x>W)p.x=0; if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+      x.beginPath(); x.arc(p.x,p.y,p.r,0,7);
+      x.fillStyle=`rgba(244,240,234,${p.o})`; x.fill();
+    }
+    requestAnimationFrame(loop);
+  })();
+})();
+
+/* ============ LETTER SPLIT ============ */
+document.querySelectorAll('[data-split]').forEach(el => {
+  const split = node => {
+    [...node.childNodes].forEach(n => {
+      if (n.nodeType === 3) {
+        const frag = document.createDocumentFragment();
+        for (const ch of n.textContent) {
+          if (ch === ' ') { frag.appendChild(document.createTextNode(' ')); continue; }
+          const s = document.createElement('span');
+          s.className = 'char'; s.textContent = ch;
+          frag.appendChild(s);
+        }
+        node.replaceChild(frag, n);
+      } else if (n.nodeType === 1) split(n);
+    });
+  };
+  split(el);
+  el.querySelectorAll('.char').forEach((s,i) => s.style.transitionDelay = `${0.25 + i*0.045}s`);
+});
+
+/* ============ SCROLL DWELL / REMAP ENGINE ============ */
+const DWELL_CENTERS = [0.065, 0.215, 0.37, 0.53, 0.69, 0.9];
+const DWELL_WIDTH = 0.045, DWELL_PEAK = 3.5, REMAP_N = 2000;
+const remapLUT = (() => {
+  const density = t => {
+    let d = 1;
+    for (const c of DWELL_CENTERS) d += DWELL_PEAK * Math.exp(-((t-c)**2)/(2*DWELL_WIDTH**2));
+    return d;
+  };
+  const cum = new Float64Array(REMAP_N+1);
+  for (let i=1;i<=REMAP_N;i++) cum[i] = cum[i-1] + density((i-.5)/REMAP_N);
+  for (let i=0;i<=REMAP_N;i++) cum[i] /= cum[REMAP_N];
+  return cum;
+})();
+function remapProgress(raw){
+  // invert: find effective progress e such that cum(e) = raw
+  let lo=0, hi=REMAP_N;
+  while (lo < hi){ const mid=(lo+hi)>>1; (remapLUT[mid] < raw) ? lo=mid+1 : hi=mid; }
+  const i = Math.max(1,lo);
+  const c0=remapLUT[i-1], c1=remapLUT[i];
+  const f = c1>c0 ? (raw-c0)/(c1-c0) : 0;
+  return Math.min(1, Math.max(0, (i-1+f)/REMAP_N));
+}
+
+/* ============ FRAME LOADING ============ */
+const frames = new Array(FRAME_COUNT+1).fill(null);
+let loadedCount = 0;
+const fill = document.getElementById('load-fill'), pct = document.getElementById('load-pct');
+
+window.__loadErrors = [];
+function loadFrame(i, attempt = 0){
+  return new Promise(res => {
+    const img = new Image();
+    img.decoding = 'async';
+    img.onload = async () => {
+      if ('createImageBitmap' in window) {
+        try { frames[i] = await createImageBitmap(img); } catch(e){ frames[i] = img; }
+      } else frames[i] = img;
+      loadedCount++;
+      const p = Math.round(loadedCount/FRAME_COUNT*100);
+      fill.style.width = p+'%'; pct.textContent = p+'%';
+      res();
+    };
+    img.onerror = () => {
+      if (attempt < 2) {
+        setTimeout(() => loadFrame(i, attempt+1).then(res), 300*(attempt+1));
+      } else {
+        window.__loadErrors.push(i);
+        loadedCount++;
+        res();
+      }
+    };
+    img.src = framePath(i) + (attempt ? `?retry=${attempt}` : '');
+  });
+}
+window.__dbg = { frames, framePath, loaded: () => frames.filter(Boolean).length, tick: () => tick() };
+
+/* ============ CANVAS ============ */
+const canvas = document.getElementById('frame-canvas');
+const ctx = canvas.getContext('2d');
+function sizeCanvas(){
+  const dpr = Math.min(devicePixelRatio||1, 2);
+  canvas.width = innerWidth*dpr; canvas.height = innerHeight*dpr;
+}
+sizeCanvas(); addEventListener('resize', () => { sizeCanvas(); drawFrame(Math.round(currentFrame)); });
+
+function nearestFrame(i){
+  if (frames[i]) return frames[i];
+  for (let d=1; d<FRAME_COUNT; d++){
+    if (frames[i-d]) return frames[i-d];
+    if (frames[i+d]) return frames[i+d];
+  }
+  return null;
+}
+function drawFrame(i){
+  const img = nearestFrame(Math.max(1, Math.min(FRAME_COUNT, i)));
+  if (!img) return;
+  const cw = canvas.width, ch = canvas.height;
+  const iw = img.width, ih = img.height;
+  const s = Math.max(cw/iw, ch/ih);
+  const w = iw*s, h = ih*s;
+  ctx.drawImage(img, (cw-w)/2, (ch-h)/2, w, h);
+}
+
+/* ============ SCROLL STATE ============ */
+const animSection = document.getElementById('anim');
+const texts = [...document.querySelectorAll('.scroll-text')];
+const chapters = [...document.querySelectorAll('#chapters .ch')];
+const conns = [...document.querySelectorAll('#chapters .conn i')];
+const chaptersWrap = document.getElementById('chapters');
+const tint = document.getElementById('tint');
+const hint = document.getElementById('scroll-hint');
+const TINTS = [
+  'linear-gradient(120deg, rgba(232,121,43,.06), rgba(212,160,176,.03))',
+  'linear-gradient(120deg, rgba(212,160,176,.05), rgba(232,121,43,.03))',
+  'linear-gradient(120deg, rgba(232,121,43,.05), rgba(200,152,72,.04))',
+  'linear-gradient(120deg, rgba(200,152,72,.05), rgba(232,121,43,.03))',
+  'linear-gradient(120deg, rgba(212,160,176,.04), rgba(200,152,72,.04))',
+  'linear-gradient(120deg, rgba(232,121,43,.07), rgba(212,160,176,.04))'
+];
+let currentFrame = 1, targetFrame = 1, currentChapter = -1;
+let statsAnimated = false;
+
+function getScrollProgress(){
+  const rect = animSection.getBoundingClientRect();
+  const total = rect.height - innerHeight;
+  return Math.max(0, Math.min(1, -rect.top / total));
+}
+
+/* stat counters */
+function animateStats(){
+  if (statsAnimated) return; statsAnimated = true;
+  document.querySelectorAll('.stat-bar [data-target]').forEach(el => {
+    const target = parseFloat(el.dataset.target);
+    const t0 = performance.now(), dur = 1500;
+    (function tick(t){
+      const p = Math.min(1,(t-t0)/dur), e = 1-Math.pow(1-p,3);
+      el.textContent = Math.round(target*e).toLocaleString();
+      if (p<1) requestAnimationFrame(tick);
+    })(t0);
+  });
+}
+
+function updateOverlays(raw){
+  const inAnim = raw > 0 || animSection.getBoundingClientRect().top >= 0;
+  // section visibility
+  let active = -1;
+  texts.forEach((el,idx) => {
+    const show = parseFloat(el.dataset.showAt), hide = parseFloat(el.dataset.hideAt);
+    const bottomVisible = animSection.getBoundingClientRect().bottom > innerHeight*0.5;
+    const vis = raw >= show && raw < hide && bottomVisible;
+    el.classList.toggle('visible', vis);
+    if (vis) active = idx;
+  });
+  if (texts[0].classList.contains('visible')) animateStats();
+  // chapters
+  const inView = animSection.getBoundingClientRect().bottom > innerHeight*0.6 && !document.getElementById('loader').classList.contains('hidden') === false;
+  chaptersWrap.classList.toggle('visible', animSection.getBoundingClientRect().bottom > innerHeight*0.6);
+  if (active !== currentChapter && active >= 0){
+    currentChapter = active;
+    chapters.forEach((c,i) => c.classList.toggle('active', i===active));
+    tint.style.background = TINTS[active];
+  }
+  // connector progress
+  const bounds = [0, ...texts.slice(1).map(t=>parseFloat(t.dataset.showAt)), 1];
+  conns.forEach((c,i) => {
+    const a = parseFloat(texts[i].dataset.showAt), b = parseFloat(texts[i+1].dataset.showAt);
+    const p = Math.max(0, Math.min(1, (raw-a)/(b-a)));
+    c.style.height = (p*100)+'%';
+  });
+  // scroll hint: only near very top
+  hint.classList.toggle('visible', raw < 0.02 && loaderDone);
+}
+
+/* chapter click nav */
+chapters.forEach((c,i) => c.addEventListener('click', () => {
+  const show = parseFloat(texts[i].dataset.showAt), hide = parseFloat(texts[i].dataset.hideAt);
+  const mid = (show+hide)/2;
+  const total = animSection.offsetHeight - innerHeight;
+  window.scrollTo({ top: animSection.offsetTop + mid*total, behavior:'smooth' });
+}));
+
+/* ============ MAIN LOOP ============ */
+function tick(){
+  const raw = getScrollProgress();
+  const remapped = REDUCED ? raw : remapProgress(raw);
+  targetFrame = 1 + remapped * (FRAME_COUNT-1);
+  currentFrame += (targetFrame-currentFrame) * (REDUCED ? 1 : LERP_FACTOR);
+  if (Math.abs(targetFrame-currentFrame) < 0.02) currentFrame = targetFrame;
+  drawFrame(Math.round(currentFrame));
+  updateOverlays(raw);
+}
+function animate(){
+  tick();
+  requestAnimationFrame(animate);
+}
+/* keep state fresh even when rAF is throttled (hidden tab) */
+addEventListener('scroll', () => { if (loaderDone) tick(); }, { passive: true });
+
+/* ============ GALLERY ============ */
+document.querySelectorAll('.g-item img').forEach(img => {
+  img.src = framePath(parseInt(img.dataset.frame));
+});
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting){ e.target.classList.add('revealed'); io.unobserve(e.target); }
+}), { threshold: 0.15 });
+document.querySelectorAll('.g-item').forEach(el => io.observe(el));
+if (!REDUCED){
+  const pItems = [...document.querySelectorAll('[data-parallax]')];
+  (function ploop(){
+    for (const el of pItems){
+      const r = el.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > innerHeight) continue;
+      const c = (r.top + r.height/2 - innerHeight/2) / innerHeight;
+      el.querySelector('img').style.transform = `translateY(${c*parseFloat(el.dataset.parallax)}px)`;
+    }
+    requestAnimationFrame(ploop);
+  })();
+}
+
+/* ============ INIT ============ */
+let loaderDone = false;
+(async () => {
+  // critical frames first: evenly spaced 12, then everything in batches
+  const critical = [];
+  for (let k=0;k<12;k++) critical.push(1+Math.round(k*(FRAME_COUNT-1)/11));
+  await Promise.all([...new Set(critical)].map(loadFrame));
+  drawFrame(1);
+  const rest = [];
+  for (let i=1;i<=FRAME_COUNT;i++) if (!frames[i]) rest.push(i);
+  const BATCH = 14;
+  const loadRest = (async () => {
+    for (let i=0;i<rest.length;i+=BATCH) await Promise.all(rest.slice(i,i+BATCH).map(loadFrame));
+  })();
+  if (REDUCED) { /* static: just show first frame */ }
+  else await loadRest;
+  document.getElementById('loader').classList.add('hidden');
+  loaderDone = true;
+  animate();
+})();
+</script>
+</body>
+</html>

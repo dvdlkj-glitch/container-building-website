@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sabah Container — Sales, Estimate &amp; Build Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700;800&family=Barlow+Semi+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0f2f56; --navy2:#1c4a80; --navy3:#25588f;
+    --orange:#e8792b; --orange-d:#cf691f; --orange-soft:#fdefe2;
+    --ink:#182430; --muted:#647089; --faint:#8a95a8; --line:#e5eaf1; --line2:#eef2f7;
+    --bg:#f4f6fa; --card:#ffffff;
+    --green:#178a4c; --green-soft:#e6f5ec; --amber:#c47f04; --amber-soft:#fbf1dc;
+    --blue-soft:#e8f0f9; --slate:#8795ab; --red:#c0392b;
+    --dispf:'Barlow Condensed','Segoe UI',system-ui,sans-serif;
+    --bodyf:'Barlow','Segoe UI',system-ui,-apple-system,sans-serif;
+    --sh1:0 1px 2px rgba(15,47,86,.06),0 1px 3px rgba(15,47,86,.05);
+    --sh2:0 2px 6px rgba(15,47,86,.07),0 10px 26px rgba(15,47,86,.07);
+    --sh3:0 12px 40px rgba(15,47,86,.16);
+    /* group accent colors */
+    --gA:#1c4a80; --gB:#0e7c86; --gC:#7a5cc4; --gD:#e8792b; --gE:#c0392b; --gF:#2b6b4f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--bodyf);background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4,.disp{font-family:var(--dispf);letter-spacing:.2px}
+  a{color:var(--navy2);text-decoration:none}
+  .tnum{font-variant-numeric:tabular-nums}
+  /* ---------- Top bar ---------- */
+  .topbar{background:var(--navy);color:#fff;padding:11px 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:40;box-shadow:0 2px 16px rgba(15,47,86,.28)}
+  .brandmark{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--orange),#f0913f);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(232,121,43,.4)}
+  .brandmark span{font-family:var(--dispf);font-weight:800;font-size:24px;color:#fff}
+  .brandtxt .co{font-family:var(--dispf);font-weight:700;font-size:19px;letter-spacing:.4px;line-height:1.05}
+  .brandtxt .tl{font-size:11.5px;opacity:.72;font-weight:500;letter-spacing:.3px}
+  .spacer{flex:1}
+  .topbtn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);color:#fff;padding:8px 13px;border-radius:8px;font-family:var(--bodyf);font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;transition:.15s}
+  .topbtn:hover{background:rgba(255,255,255,.2)}
+  .topbtn svg{width:15px;height:15px}
+  /* ---------- Tabs ---------- */
+  nav.tabs{background:#fff;border-bottom:1px solid var(--line);padding:0 20px;display:flex;gap:2px;position:sticky;top:66px;z-index:30;overflow-x:auto}
+  nav.tabs button{background:none;border:none;padding:15px 18px;font-family:var(--bodyf);font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:9px;transition:.15s}
+  nav.tabs button svg{width:17px;height:17px;opacity:.8}
+  nav.tabs button:hover{color:var(--navy)}
+  nav.tabs button.active{color:var(--navy);border-bottom-color:var(--orange)}
+  nav.tabs button.active svg{opacity:1}
+  nav.tabs .cbadge{background:var(--orange);color:#fff;font-size:11px;border-radius:11px;padding:0 7px;font-weight:700;min-width:19px;text-align:center;line-height:18px}
+  main{max-width:1320px;margin:0 auto;padding:0 20px 70px}
+  .view{display:none}
+  .view.active{display:block;animation:fade .3s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes pop{from{transform:scale(.97);opacity:0}to{transform:scale(1);opacity:1}}
+  /* ---------- Hero ---------- */
+  .hero{position:relative;border-radius:0 0 18px 18px;overflow:hidden;margin-bottom:26px;min-height:230px;display:flex;align-items:flex-end;background:var(--navy)}
+  .hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 40%}
+  .hero .veil{position:absolute;inset:0;background:linear-gradient(100deg,rgba(10,30,56,.94) 0%,rgba(12,38,70,.82) 42%,rgba(12,38,70,.35) 100%)}
+  .hero .inner{position:relative;padding:34px 40px;max-width:680px}
+  .hero .eyebrow{color:#ffd9b8;font-family:var(--dispf);font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase}
+  .hero h1{color:#fff;font-size:40px;font-weight:800;line-height:1.02;margin:6px 0 10px;text-wrap:balance}
+  .hero p{color:#dbe6f2;font-size:15px;max-width:540px;font-weight:400}
+  .hero .stats{display:flex;gap:26px;margin-top:18px}
+  .hero .stats div{color:#fff}
+  .hero .stats .n{font-family:var(--dispf);font-weight:800;font-size:26px;line-height:1;color:#fff}
+  .hero .stats .l{font-size:11.5px;color:#bcccdf;letter-spacing:.4px;text-transform:uppercase;margin-top:3px}
+  .hero .stats .n b{color:var(--orange);font-weight:800}
+  /* ---------- Section head ---------- */
+  .sec-h{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:6px 0 16px;flex-wrap:wrap}
+  .sec-h h2{font-size:25px;color:var(--navy);font-weight:800;line-height:1}
+  .sec-h p{color:var(--muted);font-size:13.5px;margin-top:5px;font-weight:400}
+  /* ---------- Buttons ---------- */
+  .btn{background:var(--orange);color:#fff;border:none;padding:11px 19px;border-radius:9px;font-family:var(--bodyf);font-weight:600;font-size:14px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(232,121,43,.28)}
+  .btn:hover{background:var(--orange-d);box-shadow:0 4px 14px rgba(232,121,43,.36)}
+  .btn svg{width:16px;height:16px}
+  .btn.nav{background:var(--navy);box-shadow:0 2px 8px rgba(15,47,86,.2)}.btn.nav:hover{background:var(--navy2)}
+  .btn.ghost{background:#fff;color:var(--navy);border:1.5px solid var(--line);box-shadow:none}.btn.ghost:hover{border-color:var(--navy2);background:#fafcff}
+  .btn.sm{padding:8px 13px;font-size:12.5px;border-radius:8px}
+  .btn.danger{background:#fff;color:var(--red);border:1.5px solid #f0cfca;box-shadow:none}.btn.danger:hover{background:#fdeeec}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.block{width:100%;justify-content:center}
+  /* ---------- Filters ---------- */
+  .filters{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-bottom:14px}
+  .chip{background:#fff;border:1.5px solid var(--line);color:var(--muted);padding:8px 15px;border-radius:22px;font-size:13px;cursor:pointer;font-weight:600;transition:.15s;display:flex;align-items:center;gap:7px}
+  .chip:hover{border-color:var(--navy2);color:var(--navy)}
+  .chip.active{background:var(--navy);border-color:var(--navy);color:#fff}
+  .chip .ct{background:rgba(0,0,0,.08);border-radius:10px;font-size:11px;padding:0 6px;font-weight:700}
+  .chip.active .ct{background:rgba(255,255,255,.2)}
+  .searchwrap{position:relative;flex:1;min-width:230px}
+  .searchwrap svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--faint)}
+  input.search{width:100%;padding:11px 14px 11px 40px;border:1.5px solid var(--line);border-radius:9px;font-size:14px;font-family:var(--bodyf);background:#fff}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy2);box-shadow:0 0 0 3px rgba(28,74,128,.1)}
+  /* ---------- Group banners + cards ---------- */
+  .group{margin-bottom:34px}
+  .grp-banner{position:relative;border-radius:14px;overflow:hidden;box-shadow:var(--sh2);margin-bottom:16px;background:var(--navy)}
+  .grp-banner img{display:block;width:100%;height:auto}
+  .grp-cap{display:flex;align-items:center;gap:13px;margin-bottom:14px;padding-left:2px}
+  .grp-badge{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--dispf);font-weight:800;font-size:20px;color:#fff;flex-shrink:0}
+  .grp-cap .gt{font-family:var(--dispf);font-weight:700;font-size:20px;color:var(--navy);line-height:1}
+  .grp-cap .gs{font-size:12.5px;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:15px}
+  .pkg{background:var(--card);border:1px solid var(--line);border-radius:13px;overflow:hidden;box-shadow:var(--sh1);display:flex;flex-direction:column;transition:.18s;border-top:3px solid var(--ga,var(--navy))}
+  .pkg:hover{transform:translateY(-3px);box-shadow:var(--sh2);border-color:#d4deec}
+  .pkg .top{padding:15px 17px 13px;position:relative}
+  .pkg .lbadge{position:absolute;top:15px;right:15px;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--dispf);font-weight:800;font-size:15px;color:#fff}
+  .pkg .code{font-family:var(--dispf);font-size:12px;font-weight:700;letter-spacing:1.5px;color:var(--orange)}
+  .pkg h3{font-size:19px;color:var(--navy);margin:1px 0 5px;padding-right:38px;font-weight:700;line-height:1.05}
+  .pkg .bestfor{font-size:12.5px;color:var(--muted);min-height:34px;line-height:1.35}
+  .pkg .catrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+  .pkg .cpill{font-size:10.5px;font-weight:700;background:var(--blue-soft);color:var(--navy2);padding:3px 9px;border-radius:20px}
+  .pkg .mid{padding:13px 17px;background:#fafbfd;border-top:1px solid var(--line2);flex:1}
+  .pkg .cost{font-family:var(--dispf);font-size:21px;font-weight:700;color:var(--navy);line-height:1}
+  .pkg .cost .cl{font-family:var(--bodyf);color:var(--muted);font-weight:600;font-size:10.5px;display:block;text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px}
+  .pkg .times{display:flex;gap:7px;margin-top:12px}
+  .pkg .times div{flex:1;background:#fff;border:1px solid var(--line);border-radius:7px;padding:6px 7px;text-align:center}
+  .pkg .times span{display:block;font-size:9.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+  .pkg .times b{font-size:12px;color:var(--ink);font-weight:600}
+  .pkg .actions{padding:11px 17px;display:flex;gap:8px;border-top:1px solid var(--line2)}
+  .pkg .actions .btn{flex:1;justify-content:center}
+  .emptybox{text-align:center;padding:56px 20px;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:14px}
+  .emptybox .ei{width:54px;height:54px;margin:0 auto 12px;color:var(--faint)}
+  .emptybox b{color:var(--ink)}
+  /* ---------- Modal ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(11,25,45,.6);z-index:60;display:none;align-items:flex-start;justify-content:center;padding:38px 16px;overflow-y:auto}
+  .overlay.open{display:flex}
+  .modal{background:#fff;border-radius:15px;max-width:740px;width:100%;box-shadow:var(--sh3);animation:pop .22s ease}
+  .modal .mhead{color:#fff;padding:20px 24px;border-radius:15px 15px 0 0;display:flex;justify-content:space-between;align-items:flex-start;position:relative;overflow:hidden}
+  .modal .mhead::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,var(--navy),var(--navy2))}
+  .modal .mhead>*{position:relative;z-index:1}
+  .modal .mhead .code{color:#ffd9b8;font-family:var(--dispf);font-size:12px;font-weight:700;letter-spacing:1.4px}
+  .modal .mhead h3{font-size:23px;margin-top:2px;font-weight:700}
+  .modal .mhead .bf{font-size:13px;opacity:.88;margin-top:5px;max-width:460px}
+  .modal .mhead .x{cursor:pointer;font-size:22px;line-height:1;background:rgba(255,255,255,.14);border:none;color:#fff;width:32px;height:32px;border-radius:8px}
+  .modal .mbody{padding:20px 24px;max-height:58vh;overflow-y:auto}
+  .modal .mfoot{padding:15px 24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+  .mtable{width:100%;border-collapse:collapse;font-size:13px}
+  .mtable th{text-align:left;color:var(--faint);font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;padding:7px 8px;border-bottom:2px solid var(--line);font-weight:700}
+  .mtable td{padding:9px 8px;border-bottom:1px solid var(--line2);vertical-align:top}
+  .mtable td.mat{font-weight:600;color:var(--navy);width:40%}
+  .mtable td .spec{font-weight:400;color:var(--muted);font-size:12px;display:block;margin-top:1px}
+  .mtable td.num{text-align:right;white-space:nowrap}
+  .infochips{display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap}
+  .ichip{flex:1;min-width:130px;background:#fafbfd;border:1px solid var(--line);border-radius:10px;padding:10px 13px}
+  .ichip .l{font-size:10.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+  .ichip .v{font-family:var(--dispf);font-size:17px;font-weight:700;color:var(--navy)}
+  .ichip .v.sm{font-size:13px;font-family:var(--bodyf);font-weight:600;color:var(--ink)}
+  /* ---------- Estimator ---------- */
+  .est-wrap{display:grid;grid-template-columns:1fr 372px;gap:22px;align-items:start}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:var(--sh1);overflow:hidden}
+  .panel+.panel{margin-top:18px}
+  .phead{padding:14px 19px;border-bottom:1px solid var(--line2);font-family:var(--dispf);font-weight:700;color:var(--navy);font-size:16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .phead .stepn{background:var(--navy);color:#fff;width:23px;height:23px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;margin-right:9px}
+  .pbody{padding:17px 19px}
+  .field{margin-bottom:13px}
+  .field:last-child{margin-bottom:0}
+  .field label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+  .field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:14px;font-family:var(--bodyf);background:#fff}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .addon-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .addon{display:flex;align-items:center;gap:9px;padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;cursor:pointer;font-size:13px;transition:.12s;font-weight:500}
+  .addon:hover{border-color:var(--navy2)}
+  .addon.on{background:var(--orange-soft);border-color:var(--orange)}
+  .addon input{width:16px;height:16px;accent-color:var(--orange);flex-shrink:0}
+  .addon .ap{margin-left:auto;font-size:11px;color:var(--muted);white-space:nowrap;font-weight:600}
+  .selpkg{display:flex;gap:13px;align-items:center;flex-wrap:wrap}
+  .selpkg .lbadge{width:46px;height:46px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:var(--dispf);font-weight:800;font-size:22px;color:#fff;flex-shrink:0}
+  .bom{width:100%;border-collapse:collapse;font-size:13px}
+  .bom th{text-align:left;color:var(--faint);font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:7px 6px;border-bottom:2px solid var(--line);font-weight:700}
+  .bom td{padding:8px 6px;border-bottom:1px solid var(--line2)}
+  .bom td.num{text-align:right;white-space:nowrap}
+  .bom tr.addon-row td{color:var(--orange-d)}
+  .bom tr.sumrow td{font-family:var(--dispf);font-weight:700;font-size:15px;color:var(--navy);border-top:2px solid var(--navy);border-bottom:none;background:#fafbfd;padding-top:10px}
+  /* summary */
+  .summary{position:sticky;top:132px}
+  .sum-total{position:relative;overflow:hidden;color:#fff;padding:20px 22px;border-radius:13px 13px 0 0}
+  .sum-total::after{content:"";position:absolute;inset:0;background:linear-gradient(125deg,var(--navy),var(--navy2))}
+  .sum-total>*{position:relative;z-index:1}
+  .sum-total .lbl{font-size:11px;opacity:.82;text-transform:uppercase;letter-spacing:.7px;font-weight:600}
+  .sum-total .amt{font-family:var(--dispf);font-size:30px;font-weight:800;margin-top:3px;line-height:1}
+  .sum-total .amt small{font-size:16px;opacity:.85;font-weight:700}
+  .sum-total .cliprice{margin-top:11px;padding-top:11px;border-top:1px solid rgba(255,255,255,.18);font-size:12.5px;opacity:.92;display:flex;justify-content:space-between}
+  .sum-total .cliprice b{font-family:var(--dispf);font-size:16px}
+  .sum-rows{padding:14px 20px}
+  .sum-rows .r{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;color:var(--muted)}
+  .sum-rows .r b{color:var(--ink)}
+  .sum-rows .r.tot{border-top:1.5px dashed var(--line);margin-top:6px;padding-top:9px;font-size:14px;color:var(--navy);font-weight:700}
+  /* ---------- Tracker ---------- */
+  .proj-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+  .proj-card{background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:var(--sh1);overflow:hidden;cursor:pointer;transition:.16s}
+  .proj-card:hover{transform:translateY(-3px);box-shadow:var(--sh2)}
+  .pc-top{padding:14px 17px;border-bottom:1px solid var(--line2);display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .pc-top .cli{font-family:var(--dispf);font-weight:700;color:var(--navy);font-size:18px;line-height:1.05}
+  .pc-top .pk{font-size:12px;color:var(--muted);margin-top:2px}
+  .pc-body{padding:13px 17px}
+  .stagepill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;text-transform:uppercase;letter-spacing:.3px}
+  .stg-Lead{background:#eef1f5;color:var(--slate)}
+  .stg-Quoted{background:var(--amber-soft);color:var(--amber)}
+  .stg-Confirmed{background:var(--blue-soft);color:var(--navy2)}
+  .stg-Building{background:var(--orange-soft);color:var(--orange-d)}
+  .stg-Delivered{background:var(--green-soft);color:var(--green)}
+  .prog{height:9px;background:var(--line);border-radius:6px;overflow:hidden;display:flex;margin:8px 0}
+  .prog i{height:100%;display:block;transition:width .3s}
+  .prog .inst{background:var(--navy2)}.prog .avail{background:var(--green)}.prog .ord{background:var(--amber)}
+  .legend{display:flex;gap:13px;flex-wrap:wrap;font-size:11px;color:var(--muted)}
+  .legend span{display:flex;align-items:center;gap:5px}
+  .dot{width:9px;height:9px;border-radius:3px;display:inline-block}
+  .track-table{width:100%;border-collapse:collapse;font-size:13.5px}
+  .track-table th{text-align:left;color:var(--faint);font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;padding:9px 11px;border-bottom:2px solid var(--line);background:#fafbfd;font-weight:700}
+  .track-table td{padding:9px 11px;border-bottom:1px solid var(--line2);vertical-align:middle}
+  .track-table td.mat{font-weight:600;color:var(--navy)}
+  .track-table td .spec{display:block;font-weight:400;color:var(--muted);font-size:12px;margin-top:1px}
+  .track-table select{padding:6px 9px;border:1.5px solid var(--line);border-radius:7px;font-family:var(--bodyf);font-size:12.5px;font-weight:700;background:#fff}
+  .track-table input.note{width:100%;padding:6px 9px;border:1px solid var(--line);border-radius:6px;font-family:var(--bodyf);font-size:12.5px}
+  .stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:11px;padding:14px 16px;box-shadow:var(--sh1)}
+  .stat .n{font-family:var(--dispf);font-size:27px;font-weight:800;line-height:1}
+  .stat .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:3px;font-weight:600}
+  .stat.pending .n{color:var(--slate)}.stat.ordered .n{color:var(--amber)}
+  .stat.available .n{color:var(--green)}.stat.installed .n{color:var(--navy2)}
+  .backlink{color:var(--navy2);font-weight:600;font-size:13.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin-bottom:14px}
+  .backlink svg{width:16px;height:16px}
+  .note-bar{background:var(--orange-soft);border:1px solid #f6d5b8;color:#8a5216;font-size:12.5px;padding:11px 15px;border-radius:9px;margin-bottom:16px;display:flex;gap:9px;align-items:flex-start}
+  .note-bar svg{width:17px;height:17px;flex-shrink:0;margin-top:1px}
+  /* toast */
+  .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(90px);background:var(--navy);color:#fff;padding:13px 22px;border-radius:11px;font-weight:600;font-size:14px;box-shadow:var(--sh3);z-index:99;transition:.3s;opacity:0;display:flex;align-items:center;gap:9px}
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+  .toast.ok{background:var(--green)}
+  .toast svg{width:18px;height:18px}
+  .disc{font-size:11.5px;color:var(--faint);background:#eef2f7;padding:5px 12px;border-radius:20px}
+  /* ---------- Quotation print doc ---------- */
+  #quoteOverlay{position:fixed;inset:0;background:rgba(11,25,45,.7);z-index:70;display:none;overflow-y:auto;padding:26px 16px}
+  #quoteOverlay.open{display:block}
+  .qbar{max-width:820px;margin:0 auto 14px;display:flex;gap:10px;justify-content:flex-end}
+  .qdoc{max-width:820px;margin:0 auto;background:#fff;border-radius:6px;padding:44px 48px;box-shadow:var(--sh3);font-size:13px;color:#20303f}
+  .qdoc .qhead{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid var(--navy);padding-bottom:16px;margin-bottom:20px}
+  .qdoc .qco{display:flex;gap:13px;align-items:center}
+  .qdoc .qco .qmark{width:52px;height:52px;border-radius:11px;background:linear-gradient(135deg,var(--orange),#f0913f);display:flex;align-items:center;justify-content:center;font-family:var(--dispf);font-weight:800;font-size:28px;color:#fff}
+  .qdoc .qco .cn{font-family:var(--dispf);font-weight:700;font-size:23px;color:var(--navy);line-height:1.05}
+  .qdoc .qco .cd{font-size:11.5px;color:#5a6b7d;line-height:1.5;margin-top:3px}
+  .qdoc .qtitle{text-align:right}
+  .qdoc .qtitle .qt{font-family:var(--dispf);font-weight:800;font-size:30px;color:var(--navy);line-height:1}
+  .qdoc .qtitle .qm{font-size:11.5px;color:#5a6b7d;margin-top:5px;line-height:1.6}
+  .qgrid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:20px}
+  .qgrid h5{font-family:var(--dispf);font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:5px}
+  .qgrid .qv{font-size:13px;line-height:1.6;color:#20303f}
+  .qgrid .qv b{color:var(--navy)}
+  table.qt-tbl{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:12.5px}
+  table.qt-tbl th{background:var(--navy);color:#fff;text-align:left;padding:9px 12px;font-family:var(--dispf);font-weight:600;font-size:12px;letter-spacing:.4px}
+  table.qt-tbl th.num,table.qt-tbl td.num{text-align:right}
+  table.qt-tbl td{padding:8px 12px;border-bottom:1px solid #e5eaf1;vertical-align:top}
+  table.qt-tbl td .qs{color:#6b7889;font-size:11px;display:block}
+  table.qt-tbl tr.qtot td{background:#fafbfd;font-family:var(--dispf);font-weight:800;font-size:15px;color:var(--navy);border-top:2px solid var(--navy)}
+  table.qt-tbl tr.qsub td{font-weight:600;color:#20303f}
+  .qterms{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;margin-top:8px}
+  .qterms h5{font-family:var(--dispf);font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--orange);margin-bottom:6px}
+  .qterms ul{margin:0 0 0 16px;color:#41505f;font-size:11.5px;line-height:1.7}
+  .qpay{background:#fafbfd;border:1px solid var(--line);border-radius:9px;padding:14px 16px}
+  .qpay .row{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;color:#41505f}
+  .qpay .row b{color:var(--navy);font-family:var(--dispf);font-size:14px}
+  .qsign{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:34px}
+  .qsign .sl{border-top:1.5px solid #20303f;padding-top:6px;font-size:11.5px;color:#5a6b7d}
+  .qfoot{margin-top:26px;padding-top:14px;border-top:1px solid #e5eaf1;font-size:10.5px;color:#8a95a8;text-align:center;line-height:1.6}
+  /* WhatsApp preview */
+  .wa-box{background:#e5ddd5;border-radius:10px;padding:16px;position:relative}
+  .wa-msg{background:#dcf8c6;border-radius:9px;padding:12px 14px;font-size:13px;line-height:1.5;white-space:pre-wrap;color:#111;box-shadow:0 1px 1px rgba(0,0,0,.1);max-width:92%;font-family:var(--bodyf)}
+  @media print{
+    body{background:#fff}
+    body.show-quote>*:not(#quoteOverlay){display:none!important}
+    #quoteOverlay{position:static;display:block;padding:0;background:#fff;overflow:visible}
+    #quoteOverlay .qbar{display:none}
+    .qdoc{box-shadow:none;max-width:100%;padding:0;border-radius:0}
+  }
+  @media(max-width:900px){.est-wrap{grid-template-columns:1fr}.summary{position:static}.stat-cards{grid-template-columns:repeat(2,1fr)}.addon-list{grid-template-columns:1fr}.hero h1{font-size:30px}.qgrid,.qterms,.qsign{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brandmark"><span id="markInit">S</span></div>
+  <div class="brandtxt">
+    <div class="co" id="topCoName">Sabah Container Solutions</div>
+    <div class="tl">Design &middot; Estimate &middot; Quote &middot; Build Tracking &nbsp;|&nbsp; Kota Kinabalu, Sabah</div>
+  </div>
+  <div class="spacer"></div>
+  <button class="topbtn" onclick="openCompany()" title="Company profile & pricing settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M15 9h.01M9 13h.01M15 13h.01M9 17h6"/></svg>
+    Company</button>
+  <button class="topbtn" onclick="openBackup()" title="Backup / restore data">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+    Backup</button>
+</div>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="catalog">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Catalog &amp; Design</button>
+  <button class="tab-btn" data-tab="estimator">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M8 14h2M8 18h2M14 10h2v8h-2z"/></svg>
+    Cost Estimator</button>
+  <button class="tab-btn" data-tab="tracker">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>
+    Build Tracker <span class="cbadge" id="projCount">0</span></button>
+</nav>
+
+<main>
+  <!-- ============ CATALOG ============ -->
+  <section class="view active" id="view-catalog">
+    <div class="hero">
+      <img src="dashboard_assets/grp-E.png" alt="Container food street at dusk">
+      <div class="veil"></div>
+      <div class="inner">
+        <div class="eyebrow">Sabah / Kota Kinabalu &middot; Design &amp; Build</div>
+        <h1>Container spaces for every business, costed and tracked.</h1>
+        <p>From a MYR 16k site store to a MYR 1.1M tourist market — pick a design by business category, estimate materials, and hand the client a quote in minutes.</p>
+        <div class="stats">
+          <div><div class="n" id="hsPkg">18</div><div class="l">Packages</div></div>
+          <div><div class="n">6</div><div class="l">Categories</div></div>
+          <div><div class="n"><b>A–F</b></div><div class="l">Concept range</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-h">
+      <div><h2>Container Package Catalog</h2><p>Filter by the client's business category, then pick a design to estimate &amp; quote.</p></div>
+      <div class="disc">Indicative concept estimates — not a formal quotation</div>
+    </div>
+
+    <div class="filters" id="catFilters"></div>
+    <div class="filters">
+      <div class="searchwrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input class="search" id="catSearch" placeholder="Search package, use-case or material — e.g. cafe, dormitory, aircon, food court…">
+      </div>
+    </div>
+    <div id="catContent"></div>
+  </section>
+
+  <!-- ============ ESTIMATOR ============ -->
+  <section class="view" id="view-estimator">
+    <div class="sec-h"><div><h2>Material Cost Estimator</h2><p>Itemised bill of materials for the selected design. Add options, capture the client, then quote or confirm.</p></div></div>
+    <div id="estEmpty" class="emptybox">
+      <svg class="ei" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M8 14h2M14 10h2v8h-2z"/></svg>
+      <p><b>No package selected yet.</b><br>Open <a href="#" onclick="switchTab('catalog');return false;">Catalog &amp; Design</a> and press <b>“Estimate this build”</b> on any package.</p>
+    </div>
+    <div id="estContent" style="display:none">
+      <div class="est-wrap">
+        <div>
+          <div class="panel">
+            <div class="phead"><span><span class="stepn">1</span>Client &amp; Project Details</span></div>
+            <div class="pbody">
+              <div class="frow">
+                <div class="field"><label>Client / Company name</label><input id="cliName" placeholder="e.g. Ah Chong Coffee Sdn Bhd"></div>
+                <div class="field"><label>Contact / phone</label><input id="cliPhone" placeholder="e.g. 013-991 5768"></div>
+              </div>
+              <div class="frow">
+                <div class="field"><label>Site location</label><input id="cliSite" placeholder="e.g. Kolombong, Kota Kinabalu"></div>
+                <div class="field"><label>Business category</label><input id="cliBiz" placeholder="e.g. Food chain / F&amp;B"></div>
+              </div>
+              <div class="field"><label>Design notes / client requirement</label><textarea id="cliNotes" rows="2" placeholder="e.g. wood-look facade, folding window facing carpark, 2 aircon zones…"></textarea></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="phead"><span><span class="stepn">2</span>Selected Design</span><button class="btn ghost sm" onclick="switchTab('catalog')">Change package</button></div>
+            <div class="pbody" id="estPkgInfo"></div>
+          </div>
+          <div class="panel">
+            <div class="phead"><span><span class="stepn">3</span>Optional Add-ons</span></div>
+            <div class="pbody"><div class="addon-list" id="estAddons"></div></div>
+          </div>
+          <div class="panel">
+            <div class="phead"><span><span class="stepn">4</span>Itemised Material Estimate</span></div>
+            <div class="pbody" style="overflow-x:auto"><table class="bom" id="estBom"></table></div>
+          </div>
+        </div>
+        <div class="summary">
+          <div class="panel">
+            <div class="sum-total">
+              <div class="lbl">Estimated Build Cost (MYR)</div>
+              <div class="amt" id="sumAmt">—</div>
+              <div class="cliprice" id="sumCli" style="display:none"></div>
+            </div>
+            <div class="sum-rows" id="sumRows"></div>
+            <div style="padding:2px 18px 18px">
+              <button class="btn block nav" onclick="openQuote()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>
+                Generate Quotation</button>
+              <div class="frow" style="margin-top:9px">
+                <button class="btn ghost sm block" onclick="openWhatsApp()">WhatsApp quote</button>
+                <button class="btn sm block" onclick="confirmProject()">Confirm build →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TRACKER ============ -->
+  <section class="view" id="view-tracker">
+    <div id="trackerList">
+      <div class="sec-h"><div><h2>Build Schedule Tracker</h2><p>Confirmed client projects — track material readiness and move each job through the sales pipeline.</p></div></div>
+      <div id="projEmpty" class="emptybox">
+        <svg class="ei" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3 8-8M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>
+        <p><b>No confirmed projects yet.</b><br>Estimate a package and press <b>“Confirm build”</b> to start tracking materials here.</p>
+      </div>
+      <div class="proj-list" id="projGrid"></div>
+    </div>
+    <div id="trackerDetail" style="display:none"></div>
+  </section>
+</main>
+
+<!-- Package detail modal -->
+<div class="overlay" id="pkgModal"><div class="modal" id="pkgModalInner"></div></div>
+<!-- Company / backup / whatsapp modal -->
+<div class="overlay" id="utilModal"><div class="modal" id="utilInner"></div></div>
+<!-- Quotation overlay -->
+<div id="quoteOverlay">
+  <div class="qbar">
+    <button class="btn ghost sm" onclick="closeQuote()">Close</button>
+    <button class="btn sm nav" onclick="window.print()">🖶 Print / Save PDF</button>
+  </div>
+  <div class="qdoc" id="quoteDoc"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   DATA — 18 packages across 6 groups (A–F). A–E from the Sabah Container
+   Project Catalog PDF; F (Multi-Container Module) from the render board.
+   Each material has a relative weight `w`; line costs distribute the
+   published MYR range across weights, so estimates reconcile to catalog.
+   ===================================================================== */
+const GROUPS = {
+  A:{name:'Shipping Container Solutions',cat:'Retail / Office',img:'grp-A.png',color:'var(--gA)'},
+  B:{name:'Folding Container House',cat:'Site / Folding Cabin',img:'grp-B.png',color:'var(--gB)'},
+  C:{name:'Container Modular House',cat:'Modular Home',img:'grp-C.png',color:'var(--gC)'},
+  D:{name:'Business in a Container',cat:'F&B Business',img:'grp-D.png',color:'var(--gD)'},
+  E:{name:'Container Food Street',cat:'Food-Street Cluster',img:'grp-E.png',color:'var(--gE)'},
+  F:{name:'Multi-Container Module',cat:'Multi-Storey',img:'grp-F.png',color:'var(--gF)'}
+};
+const CATS = ['All','Food chain / F&B','Construction & office','Modular home','Retail','Food-street cluster','Multi-storey'];
+const M=(name,spec,w)=>({name,spec,w});
+const L=(name,spec,w)=>({name,spec,w,labour:true});
+
+const PACKAGES=[
+ {id:'A1',grp:'A',name:'20ft Retail Kiosk',cats:['Retail','Food chain / F&B'],
+  bestFor:'Beverage stall, small retail, ticket booth, temporary promotion counter',
+  low:45000,high:85000,build:'2–4 weeks',setup:'1–3 days',deliver:'3–5 weeks',
+  materials:[M('Main shell — 20ft container','Used or new ISO shipping container shell',5),M('Structural reinforcement','Steel frame around cut openings, angle bar, SHS',3),M('Rust protection','Anti-rust primer, epoxy coating, waterproof paint',2),M('Service opening','Folding window, roller shutter, aluminium frame, tempered glass',4),M('Internal wall lining','Gypsum or calcium silicate board',2),M('Insulation','PU / rockwool / reflective foil',2),M('Flooring','SPC, vinyl or marine plywood base',2),M('Counter','Timber laminate / stainless top, cashier ledge',3),M('Electrical','DB box, LED lights, switches, sockets, wiring',3),M('Branding','Lightbox signboard, menu board, facade decal',2),L('Fabrication labour','Cutting, welding, assembly, finishing',5),L('Transport & site setup','Delivery, crane / offload, levelling',3)],
+  addons:['Sink','Water tank','Air-cond','Exhaust fan','CCTV','POS counter']},
+ {id:'A2',grp:'A',name:'40ft Site Office',cats:['Construction & office'],
+  bestFor:'Construction site office, project meeting room, temporary admin, document room',
+  low:75000,high:140000,build:'3–5 weeks',setup:'2–4 days',deliver:'4–6 weeks',
+  materials:[M('Main shell — 40ft container','40ft shipping container shell',5),M('Structural works','Opening reinforcement, door/window frames, base repair',3),M('External finish','Anti-rust coating & industrial exterior paint',2),M('Internal wall lining','Gypsum / calcium silicate board, paint finish',3),M('Ceiling','Ceiling board with LED panel lights',2),M('Insulation','Rockwool / PU at wall & ceiling',2),M('Flooring','Vinyl or SPC flooring',2),M('Doors & windows','Steel door, aluminium sliding windows, grille',3),M('Cooling','1–2 wall-mounted air-cond units',3),M('Electrical & data','DB box, lighting, sockets, fan & network points',3),M('Furniture','Meeting table, desks, filing cabinet, whiteboard',3),M('External items','Steel step, small awning, entry platform',2),L('Fabrication labour','Cutting, welding, assembly, finishing',5),L('Transport & site setup','Delivery, crane / offload, levelling',3)],
+  addons:['Toilet module','Pantry','Data rack','CCTV','Solar light']},
+ {id:'A3',grp:'A',name:'40ft Showroom / Store',cats:['Retail'],
+  bestFor:'Pop-up showroom, product display, retail display, warehouse display unit',
+  low:95000,high:180000,build:'4–7 weeks',setup:'3–7 days',deliver:'5–8 weeks',
+  materials:[M('Main shell — 40ft container','40ft shipping container shell',5),M('Showroom frontage','Full glass frontage, tempered glass, aluminium frame',5),M('Structural reinforcement','Large-opening steel beam & edge strengthening',4),M('External finish','Premium paint, facade cladding, ACP / timber-look',3),M('Internal wall lining','Gypsum or fibre cement board',2),M('Flooring','SPC, vinyl or laminated flooring',2),M('Lighting','Track lights, display spotlights, LED strips',3),M('Cooling','1–2 wall-mounted air-cond units',3),M('Electrical','DB box, display sockets, lighting circuits',3),M('Display fit-out','Shelving, racks, display tables, cashier counter',4),M('Branding','Main signboard, lightbox, window stickers',2),L('Fabrication labour','Cutting, welding, assembly, finishing',6),L('Transport & site setup','Delivery, crane / offload, levelling',3)],
+  addons:['CCTV','Alarm','Roller shutter','Small storage room']},
+ {id:'B1',grp:'B',name:'Worker Dormitory Unit',cats:['Construction & office'],
+  bestFor:'4–8 pax sleeping quarters, temporary staff accommodation, site rest',
+  low:18000,high:32000,build:'1–3 weeks',setup:'1–2 days',deliver:'2–3 weeks',
+  materials:[M('Main frame','Folding cabin, galvanized steel frame',5),M('Wall panels','EPS / IEPS / rockwool sandwich panels',3),M('Roofing','Sandwich panel roof, waterproof flashing',2),M('Floor base','MGO board, cement board or steel floor deck',2),M('Internal finish','PVC flooring and basic wall finish',2),M('Doors & windows','Steel door, aluminium sliding window, security bar',2),M('Electrical','LED light, sockets, fan point, wiring',2),M('Furniture','Double-deck beds, lockers, basic shelf',3),M('Ventilation','Exhaust fan or wall fan',1),M('Safety','Fire extinguisher, emergency light',1),L('Fabrication labour','Assembly & finishing',3),L('Transport & site setup','Delivery & levelling',2)],
+  addons:['Air-cond','Toilet attachment','Water heater','Additional lockers']},
+ {id:'B2',grp:'B',name:'Site Canteen / Rest Area',cats:['Construction & office','Food chain / F&B'],
+  bestFor:'Site canteen, rest space, pantry, staff dining area, temporary break room',
+  low:28000,high:55000,build:'2–4 weeks',setup:'2–3 days',deliver:'3–5 weeks',
+  materials:[M('Main frame','Folding cabin frame',4),M('Wall panels','EPS or rockwool sandwich panel',3),M('Flooring','Anti-slip vinyl or cement board finish',2),M('Doors & windows','Aluminium windows, glass sliding door',2),M('Pantry zone','Sink, countertop, water inlet & outlet',3),M('Electrical','DB box, LED lights, sockets, fan point',2),M('Furniture','Dining tables, chairs, storage cabinet',3),M('Cooling & ventilation','Wall fan, exhaust fan, air-cond option',2),M('External items','Small platform, entry step, awning',2),L('Fabrication labour','Assembly & finishing',3),L('Transport & site setup','Delivery & levelling',2)],
+  addons:['Water tank','Grease trap','Microwave shelf','Fridge point']},
+ {id:'B3',grp:'B',name:'Temporary Storage / Site Store',cats:['Construction & office'],
+  bestFor:'Tool storage, material storage, temporary mobile site store',
+  low:16000,high:30000,build:'1–2 weeks',setup:'0.5–1 day',deliver:'1–2 weeks',
+  materials:[M('Main frame','Folding / portable cabin frame',4),M('Wall panels','Sandwich panel wall system',3),M('Floor base','Steel floor deck or cement board',2),M('Door','Double steel / heavy-duty lockable door',2),M('Ventilation','Louver, small window or vent grille',1),M('Electrical','Basic LED light and 1–2 socket points',1),M('Storage fit-out','Heavy-duty rack, tool shelf, pegboard',3),M('Security','Padlock set, security grille, CCTV option',2),M('External item','Small ramp or step',1),L('Fabrication labour','Assembly & finishing',2),L('Transport & site setup','Delivery & levelling',2)],
+  addons:['Fire extinguisher','Dehumidifier','Solar light']},
+ {id:'C1',grp:'C',name:'Studio Cabin',cats:['Modular home'],
+  bestFor:'Airbnb, homestay, one-bedroom stay, site housing, small resort cabin',
+  low:90000,high:160000,build:'5–8 weeks',setup:'4–7 days',deliver:'6–10 weeks',
+  materials:[M('Main frame','Container or modular steel frame',5),M('Foundation','Concrete pad, steel stump or isolated footing',3),M('External wall','Anti-rust paint with optional cladding',2),M('Internal wall','Fibre cement or gypsum board lining',2),M('Insulation','PU or rockwool insulation',2),M('Flooring','SPC or vinyl flooring',2),M('Doors & windows','Sliding glass door, aluminium window, mosquito net',3),M('Bathroom','Toilet, basin, shower, waterproofing, floor trap',3),M('Pantry','Small cabinet, sink, countertop',2),M('Electrical','DB box, LED lights, sockets, water heater point',3),M('Cooling','1 wall-mounted air-cond unit',2),M('External deck','Decking, small canopy, steps',3),L('Fabrication labour','Cutting, welding, assembly, finishing',6),L('Transport & site setup','Delivery, crane / offload, levelling',4)],
+  addons:['Built-in wardrobe','Solar water heater','Smart lock','CCTV']},
+ {id:'C2',grp:'C',name:'2-Bed Modular Home',cats:['Modular home'],
+  bestFor:'Small family home, homestay, staff house, short-stay rental unit',
+  low:160000,high:320000,build:'8–12 weeks',setup:'1–2 weeks',deliver:'10–14 weeks',
+  materials:[M('Main frame','2–3 modular steel frames / container modules',7),M('Foundation','Concrete footing, steel stumps, floor levelling',4),M('Module connection','Connection plates, bolt fixing, roof flashing',2),M('External wall','Weatherproof paint, ACP / timber-look cladding',3),M('Internal wall','Fibre cement or gypsum wall lining',3),M('Insulation','Rockwool or PU wall & ceiling insulation',2),M('Room fit-out','2 bedrooms, living room layout, doors',4),M('Kitchen','Cabinet, sink, countertop, hob point',3),M('Bathroom','Shower, toilet, basin, waterproofing',3),M('Doors & windows','Aluminium windows, sliding & bedroom doors',3),M('Electrical','Full DB, lighting, sockets, heater & aircon points',4),M('Plumbing','Water supply, waste pipe, septic / sewer connection',3),M('External items','Decking, canopy, gutter, drainage',3),L('Fabrication labour','Cutting, welding, assembly, finishing',8),L('Transport & site setup','Delivery, crane, module joining, levelling',5)],
+  addons:['Furniture package','Solar panel','Rainwater tank','Landscape']},
+ {id:'C3',grp:'C',name:'Classroom / Clinic Unit',cats:['Modular home','Construction & office'],
+  bestFor:'Temporary classroom, clinic, consultation room, training room',
+  low:120000,high:260000,build:'6–10 weeks',setup:'1–2 weeks',deliver:'8–12 weeks',
+  materials:[M('Main frame','Modular steel frame or container shell',6),M('Foundation','Concrete pad or footing',3),M('Wall system','Insulated panel or fibre cement board',3),M('Flooring','Commercial vinyl or anti-slip flooring',2),M('Doors & windows','Aluminium windows, glass door, security grille',3),M('Electrical','LED panel lights, sockets, DB box, emergency light',3),M('Cooling','1–3 air-cond units depending on size',3),M('Clinic fit-out','Wash basin, counter, medicine cabinet, partition',4),M('Classroom fit-out','Whiteboard, chairs, tables, storage cabinet',3),M('Safety','Fire extinguisher, exit sign, first aid box',2),M('Accessibility','Ramp and handrail option',2),L('Fabrication labour','Cutting, welding, assembly, finishing',6),L('Transport & site setup','Delivery, crane / offload, levelling',4)],
+  addons:['Toilet','Waiting area','Medical-grade vinyl','CCTV']},
+ {id:'D1',grp:'D',name:'Container Cafe',cats:['Food chain / F&B'],
+  bestFor:'Coffee shop, dessert shop, compact casual dining, pop-up F&B outlet',
+  low:65000,high:130000,build:'4–7 weeks',setup:'3–7 days',deliver:'5–8 weeks',
+  materials:[M('Main shell','20ft or 40ft container shell',5),M('Frontage','Folding service window, awning, glass display',4),M('External finish','Anti-rust coating, branding paint, wood-look facade',3),M('Counter','Stainless worktop, cashier & display counter',4),M('Kitchen support','Sink, water inlet/outlet, grease trap option',3),M('Electrical','DB box, coffee machine socket, LED lights, lightbox',3),M('Ventilation','Exhaust fan or air-cond',2),M('Flooring','SPC, vinyl or anti-slip flooring',2),M('Internal wall','Fire-resistant / easy-clean wall finish',2),M('Signage','Main signboard, menu board, front lightbox',2),L('Fabrication labour','Cutting, welding, assembly, finishing',5),L('Transport & site setup','Delivery, crane / offload, levelling',3)],
+  addons:['Coffee machine','Chiller','Freezer','POS','CCTV','Outdoor seating']},
+ {id:'D2',grp:'D',name:'Bubble Tea / Beverage Kiosk',cats:['Food chain / F&B'],
+  bestFor:'Drink kiosk, takeaway beverage counter, shopping area stall, event unit',
+  low:55000,high:95000,build:'3–5 weeks',setup:'2–4 days',deliver:'4–6 weeks',
+  materials:[M('Main shell','20ft container or compact container shell',5),M('Frontage','Service counter window and roller shutter',4),M('Interior','Washable wall panels, countertop, storage shelves',3),M('Flooring','Anti-slip vinyl or SPC flooring',2),M('Plumbing','Sink, water tank / direct pipe, waste outlet',3),M('Electrical','Multiple equipment sockets, DB box, LED lights',3),M('Branding','Beverage menu board, lightbox, brand sticker',2),M('Cooling & ventilation','Air-cond or exhaust fan',2),M('Equipment allowance','Sealing machine, ice machine & fridge points',3),L('Fabrication labour','Cutting, welding, assembly, finishing',5),L('Transport & site setup','Delivery, crane / offload, levelling',3)],
+  addons:['POS','CCTV','Queue railing','Display fridge','Outdoor bench']},
+ {id:'D3',grp:'D',name:'Mini Mart / Snack Stall',cats:['Food chain / F&B','Retail'],
+  bestFor:'Convenience retail, snack stall, site mini mart, tourism supply stop',
+  low:60000,high:110000,build:'3–6 weeks',setup:'3–5 days',deliver:'4–7 weeks',
+  materials:[M('Main shell','20ft or 40ft container shell',5),M('Entrance','Glass entrance, roller shutter or steel door',3),M('Interior fit-out','Shelving system, cashier counter, storage racks',4),M('Cooling points','Chiller point, freezer point, dedicated sockets',3),M('Electrical','DB box, LED lights, display sockets',3),M('Flooring','SPC or vinyl flooring',2),M('Wall finish','Painted board or washable panel',2),M('Signage','Main signboard, window stickers, promotion board',2),M('Security','CCTV, alarm, security grille',2),L('Fabrication labour','Cutting, welding, assembly, finishing',5),L('Transport & site setup','Delivery, crane / offload, levelling',3)],
+  addons:['Air-cond','POS','Inventory shelf labels','Small back store']},
+ {id:'E1',grp:'E',name:'4-Unit Starter Cluster',cats:['Food-street cluster','Food chain / F&B'],
+  bestFor:'Small F&B hub, event site, weekend market, compact food court launch',
+  low:280000,high:480000,build:'8–12 weeks',setup:'2–3 weeks',deliver:'10–14 weeks',
+  materials:[M('Main units','4 modified 20ft / 40ft containers',12),M('Common area','Steel deck, walkway, outdoor seating platform',5),M('Shading','Tensile canopy or metal roofing cover',4),M('Utilities','Shared DB panel, main cable, water & waste line',5),M('F&B preparation','Sinks, counter, grease trap, exhaust hood provision',4),M('Ground works','Concrete slab, crusher run base, paving',5),M('Lighting','Outdoor string lights, facade & stall lights',3),M('Drainage','Surface drain, floor drain, rain gutter',3),M('Furniture','Dining tables, benches, loose chairs',3),M('Wayfinding','Stall signage, directional signage',2),L('Fabrication labour','Cutting, welding, cluster assembly, finishing',10),L('Transport & site setup','Delivery, crane, positioning, levelling',6)],
+  addons:['Public toilet','Landscape','CCTV','Sound system']},
+ {id:'E2',grp:'E',name:'6-Unit Food Court',cats:['Food-street cluster','Food chain / F&B'],
+  bestFor:'Community food court, fixed dining zone, commercial F&B centre',
+  low:450000,high:750000,build:'10–16 weeks',setup:'3–5 weeks',deliver:'14–20 weeks',
+  materials:[M('Main units','6 modified shipping containers',14),M('Structural works','Steel canopy frame, walkway frame, service corridor',6),M('F&B systems','Individual sinks, grease trap, exhaust duct provision',5),M('Common utilities','Main DB, sub-DB, water distribution, waste line',6),M('Ground works','Concrete slab, anti-slip deck, drainage gradient',6),M('Roofing','Large metal roof or tensile canopy',5),M('Fire safety','Fire extinguishers, exit signage, emergency lighting',3),M('Lighting','Stall signage, outdoor & ambient lights',3),M('Furniture','Communal tables, benches, trash station',4),M('Hygiene facilities','Public toilet or handwash station',4),L('Fabrication labour','Cutting, welding, cluster assembly, finishing',12),L('Transport & site setup','Delivery, crane, positioning, levelling',7)],
+  addons:['Landscape','Stage area','CCTV','Management office']},
+ {id:'E3',grp:'E',name:'8-Unit Tourist Market',cats:['Food-street cluster','Food chain / F&B'],
+  bestFor:'Tourism night market, seaside food street, destination F&B market',
+  low:650000,high:1100000,build:'14–22 weeks',setup:'4–8 weeks',deliver:'18–28 weeks',
+  materials:[M('Main units','8 modified shipping containers',16),M('Master planning','Stall layout, circulation path, central dining zone',4),M('Feature structures','Steel canopy, feature entrance, common deck',7),M('Public facilities','Toilet block, utility room, management kiosk',6),M('Utilities','Main incoming panel, sub-meter, water distribution',6),M('F&B systems','Exhaust system, grease trap, floor drain, wash area',6),M('Ground works','Paving, concrete slab, composite deck',7),M('Lighting','Decorative, wayfinding & signage lights',4),M('Landscape','Planter boxes, tree pots, photo spot, branding',4),M('Safety & crowd flow','CCTV, extinguishers, emergency lights, circulation',4),L('Fabrication labour','Cutting, welding, cluster assembly, finishing',14),L('Transport & site setup','Delivery, crane, positioning, levelling',8)],
+  addons:['Stage','Busker area','Kids zone','Digital screen','Parking signage']},
+ {id:'F1',grp:'F',name:'2-Storey Office Block',cats:['Construction & office','Multi-storey'],
+  bestFor:'Project HQ, sales gallery, admin office, corporate site block',
+  low:380000,high:780000,build:'10–16 weeks',setup:'2–4 weeks',deliver:'12–20 weeks',
+  materials:[M('Main units','Multiple stacked 40ft containers (2-storey)',12),M('Structural steel','Bracing, columns, stacking connections',7),M('Staircase & balcony','Steel staircase, balcony, handrails',4),M('Insulated lining','Wall & ceiling insulation and lining',4),M('Glazing & doors','Aluminium glazing, steel access doors',5),M('Electrical, data & fire','Full DB, data, lighting, fire safety package',5),M('Floor & facade','Floor finishes, facade cladding',5),M('Roofing & drainage','Roofing canopy, gutter & drainage',3),M('Office fit-out','Partitions, meeting rooms, pantry',4),L('Fabrication labour','Cutting, welding, stacking, finishing',10),L('Transport, crane & stacking','Delivery, crane lift, positioning, levelling',6)],
+  addons:['Lift / platform','Solar panel array','Car park & landscape','CCTV & access control','Signage tower']},
+ {id:'F2',grp:'F',name:'Hostel / Dormitory Block',cats:['Multi-storey','Construction & office'],
+  bestFor:'Worker housing, student stay, large-scale accommodation block',
+  low:550000,high:1200000,build:'12–20 weeks',setup:'3–5 weeks',deliver:'16–26 weeks',
+  materials:[M('Main units','Multiple stacked 40ft containers (2-storey)',14),M('Structural steel','Bracing, columns, stacking connections',8),M('Staircase & corridor','Steel staircase, access corridor, handrails',5),M('Insulated lining','Wall & ceiling insulation and lining',5),M('Room fit-out','Multiple rooms, doors, bed frames',6),M('Ablution / bathroom block','Showers, toilets, basins, waterproofing',5),M('Windows & doors','Aluminium windows, steel doors',5),M('Electrical, plumbing & fire','Full DB, plumbing, fire safety package',6),M('Floor & facade','Floor finishes, facade cladding',5),M('Roofing & drainage','Roofing, gutter & drainage',3),L('Fabrication labour','Cutting, welding, stacking, finishing',12),L('Transport, crane & stacking','Delivery, crane lift, positioning, levelling',7)],
+  addons:['Lift / platform','Solar panel array','Laundry room','CCTV & access control','Canteen module']},
+ {id:'F3',grp:'F',name:'Commercial Gallery / Co-working Hub',cats:['Multi-storey','Retail'],
+  bestFor:'Retail mix, studio, co-working, collaboration & event space',
+  low:480000,high:980000,build:'12–18 weeks',setup:'3–5 weeks',deliver:'16–24 weeks',
+  materials:[M('Main units','Multiple stacked 40ft containers (2-storey)',13),M('Structural steel','Bracing, columns, stacking connections',7),M('Staircase & balcony','Steel staircase, balcony, handrails',4),M('Full glazing frontage','Curtain-style glazing, feature entrance',6),M('Insulated lining','Wall & ceiling insulation and lining',4),M('Interior fit-out','Studio / retail / collaboration zones',6),M('Electrical, data & lighting','Full DB, data, feature lighting, fire safety',5),M('Cooling','Multiple air-cond zones',4),M('Floor & facade','Floor finishes, facade cladding',5),M('Roofing & drainage','Roofing canopy, gutter & drainage',3),L('Fabrication labour','Cutting, welding, stacking, finishing',11),L('Transport, crane & stacking','Delivery, crane lift, positioning, levelling',6)],
+  addons:['Lift / platform','Solar panel array','Landscape & deck','CCTV & access control','Digital screen']}
+];
+
+/* Add-on indicative cost table (MYR low–high), matched by keyword */
+const ADDON_COST=[
+  [/lift|platform/i,[15000,60000]],[/toilet block|public toilet|ablution|canteen module|laundry room/i,[9000,32000]],[/toilet/i,[4000,12000]],
+  [/coffee machine/i,[3000,15000]],[/solar panel|solar array/i,[6000,30000]],[/solar water heater/i,[2500,7000]],[/solar light/i,[500,2500]],
+  [/furniture package/i,[4000,15000]],[/management office/i,[15000,45000]],[/car park|landscape & deck|landscape/i,[3000,25000]],
+  [/stage/i,[6000,25000]],[/sound system/i,[2500,10000]],[/digital screen/i,[4000,20000]],[/signage tower/i,[4000,20000]],
+  [/access control/i,[2000,12000]],[/chiller|freezer|display fridge/i,[2500,8000]],[/rainwater tank|water tank/i,[600,3000]],
+  [/air.?cond/i,[1500,4500]],[/pantry/i,[3000,9000]],[/data rack/i,[1500,5000]],[/built.?in wardrobe/i,[2000,7000]],[/pos/i,[1500,6000]],
+  [/cctv/i,[1200,5000]],[/waiting area|back store|storage room/i,[3000,12000]],[/kids zone|busker/i,[3000,14000]],[/dehumidifier/i,[600,2200]],
+  [/water heater/i,[500,2200]],[/grease trap/i,[800,3500]],[/sink/i,[600,2500]],[/exhaust fan/i,[300,1500]],[/smart lock/i,[800,2500]],
+  [/queue railing|parking signage|inventory shelf|shelf labels|microwave shelf|fridge point|additional lockers|outdoor seating|outdoor bench|medical.?grade vinyl/i,[500,3500]],
+  [/alarm|security grille|roller shutter|handwash/i,[1000,5000]]
+];
+function addonCost(n){for(const[re,v]of ADDON_COST)if(re.test(n))return v;return[1000,5000];}
+
+/* ---------------- utils ---------------- */
+const fmt=n=>'MYR '+Math.round(n).toLocaleString('en-MY');
+const fmtS=n=>Math.round(n).toLocaleString('en-MY');
+const $=s=>document.querySelector(s);
+const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const store={get(){try{return JSON.parse(localStorage.getItem('cbs_projects')||'[]')}catch(e){return[]}},set(v){localStorage.setItem('cbs_projects',JSON.stringify(v))}};
+const COMP_DEF={name:'Sabah Container Solutions',phone:'',address:'Kota Kinabalu, Sabah',reg:'',markup:0,deposit:50};
+const company={get(){try{return Object.assign({},COMP_DEF,JSON.parse(localStorage.getItem('cbs_company')||'{}'))}catch(e){return Object.assign({},COMP_DEF)}},set(v){localStorage.setItem('cbs_company',JSON.stringify(v))}};
+let state={pkg:null,addons:{}};
+function toast(msg,ok){const t=$('#toast');t.innerHTML=(ok?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>':'')+esc(msg);t.className='toast show'+(ok?' ok':'');setTimeout(()=>t.className='toast',2400);}
+function bom(pkg){const tw=pkg.materials.reduce((s,m)=>s+m.w,0);return pkg.materials.map(m=>({name:m.name,spec:m.spec,labour:!!m.labour,low:pkg.low*m.w/tw,high:pkg.high*m.w/tw}));}
+function applyMarkup(v){const mk=company.get().markup||0;return v*(1+mk/100);}
+
+/* ================= TAB NAV ================= */
+function switchTab(t){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$('#view-'+t).classList.add('active');if(t==='tracker')renderProjects();if(t==='estimator')renderEstimator();window.scrollTo({top:0,behavior:'smooth'});}
+document.querySelectorAll('.tab-btn').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+
+/* ================= CATALOG ================= */
+let catFilter='All',catSearch='';
+function catCount(c){return c==='All'?PACKAGES.length:PACKAGES.filter(p=>p.cats.includes(c)).length;}
+function renderFilters(){$('#catFilters').innerHTML=CATS.map(c=>`<div class="chip ${c===catFilter?'active':''}" onclick="setCatFilter('${c}')">${c}<span class="ct">${catCount(c)}</span></div>`).join('');}
+function setCatFilter(c){catFilter=c;renderFilters();renderCatalog();}
+$('#catSearch').oninput=e=>{catSearch=e.target.value.toLowerCase();renderCatalog();};
+function matchCat(p){return catFilter==='All'||p.cats.includes(catFilter);}
+function matchSearch(p){if(!catSearch)return true;return (p.id+' '+p.name+' '+p.bestFor+' '+p.materials.map(m=>m.name+' '+m.spec).join(' ')+' '+p.addons.join(' ')).toLowerCase().includes(catSearch);}
+function pkgCard(p){return `<div class="pkg" style="--ga:${GROUPS[p.grp].color}">
+  <div class="top"><div class="lbadge" style="background:${GROUPS[p.grp].color}">${p.grp}</div>
+    <div class="code">PROJECT ${p.id}</div><h3>${p.name}</h3>
+    <div class="bestfor">${p.bestFor}</div>
+    <div class="catrow">${p.cats.map(c=>`<span class="cpill">${c}</span>`).join('')}</div></div>
+  <div class="mid"><div class="cost"><span class="cl">Estimated cost</span>${fmt(p.low)} – ${fmtS(p.high)}</div>
+    <div class="times"><div><span>Build</span><b>${p.build}</b></div><div><span>Setup</span><b>${p.setup}</b></div><div><span>Delivery</span><b>${p.deliver}</b></div></div></div>
+  <div class="actions"><button class="btn ghost sm" onclick="openPkg('${p.id}')">Details</button><button class="btn sm" onclick="selectPkg('${p.id}')">Estimate this build →</button></div></div>`;}
+function renderCatalog(){
+  const c=$('#catContent');
+  if(catSearch){
+    const list=PACKAGES.filter(p=>matchCat(p)&&matchSearch(p));
+    c.innerHTML=list.length?`<div class="grid">${list.map(pkgCard).join('')}</div>`:`<div class="emptybox"><b>No packages match “${esc(catSearch)}”.</b><br>Try a different keyword or clear the search.</div>`;
+    return;
+  }
+  let html='';
+  Object.keys(GROUPS).forEach(g=>{
+    const list=PACKAGES.filter(p=>p.grp===g&&matchCat(p));
+    if(!list.length)return;
+    const lo=Math.min(...list.map(p=>p.low)),hi=Math.max(...list.map(p=>p.high));
+    html+=`<div class="group">
+      <div class="grp-cap"><div class="grp-badge" style="background:${GROUPS[g].color}">${g}</div>
+        <div><div class="gt">${GROUPS[g].name}</div><div class="gs">${GROUPS[g].cat} &middot; ${list.length} package${list.length>1?'s':''} &middot; ${fmt(lo)} – ${fmtS(hi)}</div></div></div>
+      <div class="grp-banner"><img src="dashboard_assets/${GROUPS[g].img}" alt="${GROUPS[g].name} render" loading="lazy"></div>
+      <div class="grid">${list.map(pkgCard).join('')}</div></div>`;
+  });
+  c.innerHTML=html||`<div class="emptybox"><b>No packages in this category.</b></div>`;
+}
+/* package modal */
+function openPkg(id){const p=PACKAGES.find(x=>x.id===id);const b=bom(p);
+  $('#pkgModalInner').innerHTML=`<div class="mhead"><div><div class="code">PROJECT ${p.id} · GROUP ${p.grp} — ${GROUPS[p.grp].name}</div><h3>${p.name}</h3><div class="bf">${p.bestFor}</div></div><button class="x" onclick="closeOverlay('pkgModal')">×</button></div>
+    <div class="mbody"><div class="infochips">
+      <div class="ichip"><div class="l">Estimated cost</div><div class="v">${fmt(p.low)} – ${fmtS(p.high)}</div></div>
+      <div class="ichip"><div class="l">Build / setup / delivery</div><div class="v sm">${p.build} · ${p.setup} · ${p.deliver}</div></div></div>
+    <table class="mtable"><thead><tr><th>Material / scope</th><th style="text-align:right">Est. low</th><th style="text-align:right">Est. high</th></tr></thead>
+    <tbody>${b.map(m=>`<tr><td class="mat">${m.name}<span class="spec">${m.spec}</span></td><td class="num">${fmtS(m.low)}</td><td class="num">${fmtS(m.high)}</td></tr>`).join('')}</tbody></table>
+    <div style="margin-top:13px;font-size:12.5px;color:var(--muted)"><b>Optional add-ons:</b> ${p.addons.join(' · ')}</div></div>
+    <div class="mfoot"><span style="font-size:12px;color:var(--faint)">Indicative concept estimate — final quote depends on site, transport, finishes &amp; M&amp;E.</span><button class="btn" onclick="selectPkg('${p.id}')">Estimate this build →</button></div>`;
+  $('#pkgModal').classList.add('open');}
+function closeOverlay(id){$('#'+id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(o=>o.onclick=e=>{if(e.target===o)o.classList.remove('open');});
+
+/* ================= ESTIMATOR ================= */
+function selectPkg(id){if(state.pkg!==id){state.pkg=id;state.addons={};}closeOverlay('pkgModal');switchTab('estimator');}
+function renderEstimator(){
+  if(!state.pkg){$('#estEmpty').style.display='block';$('#estContent').style.display='none';return;}
+  $('#estEmpty').style.display='none';$('#estContent').style.display='block';
+  const p=PACKAGES.find(x=>x.id===state.pkg);const gc=GROUPS[p.grp].color;
+  $('#estPkgInfo').innerHTML=`<div class="selpkg"><div class="lbadge" style="background:${gc}">${p.grp}</div>
+    <div style="flex:1;min-width:170px"><div class="code" style="color:var(--orange);font-family:var(--dispf);font-weight:700;letter-spacing:1.4px;font-size:12px">PROJECT ${p.id}</div>
+      <div style="font-family:var(--dispf);font-size:20px;font-weight:700;color:var(--navy);line-height:1">${p.name}</div>
+      <div style="font-size:12.5px;color:var(--muted)">${p.bestFor}</div></div>
+    <div style="text-align:right"><div style="font-size:10.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.5px">Catalog range</div>
+      <div style="font-family:var(--dispf);font-size:18px;font-weight:700;color:var(--navy)">${fmt(p.low)} – ${fmtS(p.high)}</div>
+      <div style="font-size:11.5px;color:var(--muted)">Delivery ${p.deliver}</div></div></div>`;
+  $('#estAddons').innerHTML=p.addons.map(a=>{const[lo,hi]=addonCost(a);const on=!!state.addons[a];
+    return `<label class="addon ${on?'on':''}"><input type="checkbox" ${on?'checked':''} onchange="toggleAddon('${a.replace(/'/g,"\\'")}')"><span>${a}</span><span class="ap">+${fmtS(lo)}–${fmtS(hi)}</span></label>`;}).join('');
+  renderBom();
+}
+function toggleAddon(a){state.addons[a]=!state.addons[a];renderEstimator();}
+function currentTotals(){
+  const p=PACKAGES.find(x=>x.id===state.pkg);const b=bom(p);
+  let baseLo=0,baseHi=0,addLo=0,addHi=0;b.forEach(m=>{baseLo+=m.low;baseHi+=m.high;});
+  const chosen=p.addons.filter(a=>state.addons[a]);chosen.forEach(a=>{const[lo,hi]=addonCost(a);addLo+=lo;addHi+=hi;});
+  return{p,b,chosen,baseLo,baseHi,addLo,addHi,totLo:baseLo+addLo,totHi:baseHi+addHi};
+}
+function renderBom(){
+  const t=currentTotals();
+  let rows=t.b.map(m=>`<tr><td>${m.name}${m.labour?' <span style="font-size:10px;color:var(--faint)">(labour/logistics)</span>':''}</td><td class="num">${fmtS(m.low)}</td><td class="num">${fmtS(m.high)}</td></tr>`).join('');
+  rows+=t.chosen.map(a=>{const[lo,hi]=addonCost(a);return `<tr class="addon-row"><td>+ ${a}</td><td class="num">${fmtS(lo)}</td><td class="num">${fmtS(hi)}</td></tr>`;}).join('');
+  rows+=`<tr class="sumrow"><td>TOTAL ESTIMATE</td><td class="num">${fmtS(t.totLo)}</td><td class="num">${fmtS(t.totHi)}</td></tr>`;
+  $('#estBom').innerHTML=`<thead><tr><th>Item</th><th style="text-align:right">Low (MYR)</th><th style="text-align:right">High (MYR)</th></tr></thead><tbody>${rows}</tbody>`;
+  $('#sumAmt').innerHTML=`${fmtS(t.totLo)} <small>– ${fmtS(t.totHi)}</small>`;
+  const mk=company.get().markup||0;
+  const cli=$('#sumCli');
+  if(mk>0){cli.style.display='flex';cli.innerHTML=`<span>Client price (+${mk}% margin)</span><b>${fmtS(applyMarkup(t.totLo))}–${fmtS(applyMarkup(t.totHi))}</b>`;}
+  else cli.style.display='none';
+  $('#sumRows').innerHTML=`<div class="r">Base package <b>${fmtS(t.baseLo)}–${fmtS(t.baseHi)}</b></div>
+    <div class="r">Add-ons (${t.chosen.length}) <b>${t.addLo?('+'+fmtS(t.addLo)+'–'+fmtS(t.addHi)):'—'}</b></div>
+    <div class="r tot">Total cost range <b>${fmtS(t.totLo)}–${fmtS(t.totHi)}</b></div>
+    <div class="r" style="font-size:11.5px">Mid-point <b>${fmt((t.totLo+t.totHi)/2)}</b></div>`;
+}
+
+/* ================= QUOTATION ================= */
+function collectClient(){return{name:$('#cliName').value.trim(),phone:$('#cliPhone').value.trim(),site:$('#cliSite').value.trim(),biz:$('#cliBiz').value.trim(),notes:$('#cliNotes').value.trim()};}
+function todayStr(){const d=new Date();return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});}
+function validStr(){const d=new Date();d.setDate(d.getDate()+30);return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});}
+function quoteNo(){const d=new Date();return 'Q'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'-'+String(Math.floor(d.getHours()*60+d.getMinutes())).padStart(4,'0');}
+function openQuote(){
+  if(!state.pkg)return;const c=company.get();const cl=collectClient();const t=currentTotals();const mk=c.markup||0;
+  const px=v=>mk>0?applyMarkup(v):v;
+  const groupBase=t.p.materials.filter(m=>!m.labour),groupLab=t.p.materials.filter(m=>m.labour);
+  let bodyRows='';
+  // consolidated line items: main scope (base package) + each addon
+  bodyRows+=`<tr class="qsub"><td>Design &amp; build — <b>${esc(t.p.name)}</b><span class="qs">${esc(t.p.bestFor)}</span></td><td class="num">${fmtS(px(t.baseLo))}</td><td class="num">${fmtS(px(t.baseHi))}</td></tr>`;
+  t.chosen.forEach(a=>{const[lo,hi]=addonCost(a);bodyRows+=`<tr><td>Add-on — ${esc(a)}</td><td class="num">${fmtS(px(lo))}</td><td class="num">${fmtS(px(hi))}</td></tr>`;});
+  bodyRows+=`<tr class="qtot"><td>ESTIMATED TOTAL (MYR)</td><td class="num">${fmtS(px(t.totLo))}</td><td class="num">${fmtS(px(t.totHi))}</td></tr>`;
+  const depPct=c.deposit||50;const depLo=px(t.totLo)*depPct/100,depHi=px(t.totHi)*depPct/100;
+  $('#quoteDoc').innerHTML=`
+    <div class="qhead"><div class="qco"><div class="qmark">${esc((c.name||'S')[0].toUpperCase())}</div>
+      <div><div class="cn">${esc(c.name)}</div><div class="cd">${esc(c.address||'')}${c.phone?'<br>Tel: '+esc(c.phone):''}${c.reg?'<br>Reg: '+esc(c.reg):''}</div></div></div>
+      <div class="qtitle"><div class="qt">QUOTATION</div><div class="qm">No. ${quoteNo()}<br>Date: ${todayStr()}<br>Valid until: ${validStr()}</div></div></div>
+    <div class="qgrid">
+      <div><h5>Prepared For</h5><div class="qv"><b>${esc(cl.name||'—')}</b>${cl.biz?'<br>'+esc(cl.biz):''}${cl.site?'<br>'+esc(cl.site):''}${cl.phone?'<br>Tel: '+esc(cl.phone):''}</div></div>
+      <div><h5>Project</h5><div class="qv"><b>${t.p.id} · ${esc(t.p.name)}</b><br>Est. delivery: ${t.p.deliver}<br>Fabrication: ${t.p.build} · Site setup: ${t.p.setup}</div></div>
+    </div>
+    ${cl.notes?`<div class="qgrid" style="margin-top:-8px"><div style="grid-column:1/-1"><h5>Client Requirement</h5><div class="qv">${esc(cl.notes)}</div></div></div>`:''}
+    <table class="qt-tbl"><thead><tr><th>Scope of works</th><th class="num">From (MYR)</th><th class="num">To (MYR)</th></tr></thead><tbody>${bodyRows}</tbody></table>
+    <div class="qterms">
+      <div><h5>Terms &amp; Notes</h5><ul>
+        <li>Figures are an <b>indicative concept estimate</b>. A firm quotation follows a site visit, final design, engineering drawings and authority requirements.</li>
+        <li>Excludes land, major authority fees, major utility upgrades and special equipment unless stated.</li>
+        <li>Final price varies with site condition, transport, crane access, foundation, M&amp;E, plumbing, finishes and equipment package.</li>
+        <li>Quotation valid for 30 days from date above.</li>
+      </ul></div>
+      <div><h5>Indicative Payment</h5><div class="qpay">
+        <div class="row"><span>Deposit to start (${depPct}%)</span><b>${fmtS(depLo)}–${fmtS(depHi)}</b></div>
+        <div class="row"><span>Progress / balance (${100-depPct}%)</span><b>${fmtS(px(t.totLo)-depLo)}–${fmtS(px(t.totHi)-depHi)}</b></div>
+        <div class="row" style="border-top:1px dashed var(--line);margin-top:5px;padding-top:7px"><span>Total (est.)</span><b>${fmtS(px(t.totLo))}–${fmtS(px(t.totHi))}</b></div>
+      </div></div>
+    </div>
+    <div class="qsign"><div class="sl">Authorised by — ${esc(c.name)}</div><div class="sl">Accepted by — Client signature &amp; date</div></div>
+    <div class="qfoot">${esc(c.name)} &middot; ${esc(c.address||'Kota Kinabalu, Sabah')} &middot; This document is a concept estimate for discussion, not a binding contract.</div>`;
+  $('#quoteOverlay').classList.add('open');document.body.classList.add('show-quote');
+}
+function closeQuote(){$('#quoteOverlay').classList.remove('open');document.body.classList.remove('show-quote');}
+
+/* ================= WHATSAPP ================= */
+function openWhatsApp(){
+  if(!state.pkg)return;const c=company.get();const cl=collectClient();const t=currentTotals();const mk=c.markup||0;const px=v=>mk>0?applyMarkup(v):v;
+  const lines=[`*${c.name}* — Container Build Estimate`,``,
+    `Hi${cl.name?' '+cl.name:''} 👋`,
+    `Here's the concept estimate for your container project:`,``,
+    `📦 *${t.p.id} — ${t.p.name}*`,
+    `_${t.p.bestFor}_`,``,
+    `💰 Estimated: *MYR ${fmtS(px(t.totLo))} – ${fmtS(px(t.totHi))}*`];
+  if(t.chosen.length)lines.push(`➕ Add-ons: ${t.chosen.join(', ')}`);
+  lines.push(`🕒 Delivery: ${t.p.deliver} (build ${t.p.build})`);
+  if(cl.site)lines.push(`📍 Site: ${cl.site}`);
+  lines.push(``,`_Indicative concept estimate only. Firm quote after a site visit & final design._`);
+  if(c.phone)lines.push(``,`📞 ${c.name}: ${c.phone}`);
+  const msg=lines.join('\n');
+  $('#utilInner').innerHTML=`<div class="mhead"><div><div class="code">SALES TOOL</div><h3>WhatsApp Quote</h3><div class="bf">Copy this message or open WhatsApp to send it to the client.</div></div><button class="x" onclick="closeOverlay('utilModal')">×</button></div>
+    <div class="mbody"><div class="wa-box"><div class="wa-msg" id="waMsg">${esc(msg)}</div></div></div>
+    <div class="mfoot"><span style="font-size:12px;color:var(--faint)">Edit client name/phone in the estimator to personalise.</span>
+      <div style="display:flex;gap:8px"><button class="btn ghost sm" onclick="copyWA()">Copy text</button>
+      <button class="btn sm" onclick="sendWA()">Open WhatsApp</button></div></div>`;
+  $('#utilModal').classList.add('open');window._waMsg=msg;window._waPhone=(cl.phone||'').replace(/[^0-9]/g,'');
+}
+function copyWA(){navigator.clipboard.writeText(window._waMsg).then(()=>toast('Message copied to clipboard',true),()=>toast('Copy failed — select the text manually'));}
+function sendWA(){let ph=window._waPhone;if(ph&&ph.startsWith('0'))ph='6'+ph;const url='https://wa.me/'+(ph?ph:'')+'?text='+encodeURIComponent(window._waMsg);window.open(url,'_blank');}
+
+/* ================= CONFIRM → PROJECT ================= */
+function confirmProject(){
+  if(!state.pkg)return;const cl=collectClient();
+  if(!cl.name){toast('Enter a client / company name first');$('#cliName').focus();return;}
+  const t=currentTotals();
+  const items=[...t.b.map(m=>({name:m.name,spec:m.spec,low:Math.round(m.low),high:Math.round(m.high),type:m.labour?'labour':'material',status:'Pending',note:''})),
+    ...t.chosen.map(a=>{const[lo,hi]=addonCost(a);return{name:a,spec:'Optional add-on',low:lo,high:hi,type:'addon',status:'Pending',note:''};})];
+  const proj={id:'P'+Date.now(),client:cl.name,phone:cl.phone,site:cl.site,biz:cl.biz,notes:cl.notes,
+    pkgId:t.p.id,pkgName:t.p.name,grp:t.p.grp,stage:'Confirmed',
+    created:todayStr(),items};
+  const all=store.get();all.unshift(proj);store.set(all);updateCount();
+  toast('Build project created for '+cl.name,true);
+  ['cliName','cliPhone','cliSite','cliBiz','cliNotes'].forEach(id=>$('#'+id).value='');
+  switchTab('tracker');setTimeout(()=>openProject(proj.id),160);
+}
+
+/* ================= TRACKER ================= */
+function updateCount(){$('#projCount').textContent=store.get().length;}
+function statusCounts(items){const c={Pending:0,Ordered:0,Available:0,Installed:0};items.forEach(i=>c[i.status]++);return c;}
+const STAGES=['Lead','Quoted','Confirmed','Building','Delivered'];
+function renderProjects(){
+  const all=store.get();updateCount();
+  $('#trackerList').style.display='block';$('#trackerDetail').style.display='none';
+  if(!all.length){$('#projEmpty').style.display='block';$('#projGrid').innerHTML='';return;}
+  $('#projEmpty').style.display='none';
+  $('#projGrid').innerHTML=all.map(pr=>{const c=statusCounts(pr.items);const n=pr.items.length;const done=c.Available+c.Installed;const pct=v=>(v/n*100).toFixed(1)+'%';
+    return `<div class="proj-card" onclick="openProject('${pr.id}')">
+      <div class="pc-top"><div><div class="cli">${esc(pr.client)}</div><div class="pk"><b>${pr.pkgId}</b> · ${esc(pr.pkgName)}${pr.site?' · '+esc(pr.site):''}</div></div>
+        <span class="stagepill stg-${pr.stage||'Confirmed'}">${pr.stage||'Confirmed'}</span></div>
+      <div class="pc-body"><div style="font-size:12px;color:var(--muted);display:flex;justify-content:space-between"><span>Material readiness</span><b style="color:var(--navy)">${done}/${n} ready</b></div>
+        <div class="prog"><i class="inst" style="width:${pct(c.Installed)}"></i><i class="avail" style="width:${pct(c.Available)}"></i><i class="ord" style="width:${pct(c.Ordered)}"></i></div>
+        <div class="legend"><span><i class="dot" style="background:var(--slate)"></i>${c.Pending} pending</span><span><i class="dot" style="background:var(--amber)"></i>${c.Ordered} ordered</span><span><i class="dot" style="background:var(--green)"></i>${c.Available} avail</span><span><i class="dot" style="background:var(--navy2)"></i>${c.Installed} installed</span></div>
+        <div style="font-size:11px;color:var(--faint);margin-top:9px">Created ${pr.created}</div></div></div>`;}).join('');
+}
+const STATUSES=['Pending','Ordered','Available','Installed'];
+function openProject(id){
+  const pr=store.get().find(p=>p.id===id);if(!pr)return;
+  $('#trackerList').style.display='none';$('#trackerDetail').style.display='block';
+  const c=statusCounts(pr.items);const n=pr.items.length;const tot=pr.items.reduce((a,i)=>({lo:a.lo+i.low,hi:a.hi+i.high}),{lo:0,hi:0});
+  $('#trackerDetail').innerHTML=`<span class="backlink" onclick="renderProjects()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>All projects</span>
+    <div class="sec-h"><div><h2>${esc(pr.client)}</h2><p style="margin-top:4px"><b>${pr.pkgId} · ${esc(pr.pkgName)}</b>${pr.site?' &nbsp;|&nbsp; '+esc(pr.site):''}${pr.biz?' &nbsp;|&nbsp; '+esc(pr.biz):''}${pr.phone?' &nbsp;|&nbsp; '+esc(pr.phone):''}</p></div>
+      <div style="text-align:right"><div style="font-size:10.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.5px">Estimated value</div><div style="font-family:var(--dispf);font-size:20px;font-weight:800;color:var(--navy)">${fmt(tot.lo)} – ${fmtS(tot.hi)}</div>
+        <div style="margin-top:6px"><label style="font-size:11px;color:var(--muted);font-weight:700;margin-right:6px">Stage</label>
+        <select onchange="setStage('${pr.id}',this.value)" style="padding:5px 9px;border:1.5px solid var(--line);border-radius:7px;font-family:var(--bodyf);font-weight:700;font-size:12.5px">${STAGES.map(s=>`<option ${s===(pr.stage||'Confirmed')?'selected':''}>${s}</option>`).join('')}</select></div></div></div>
+    ${pr.notes?`<div class="note-bar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><div><b>Client requirement:</b> ${esc(pr.notes)}</div></div>`:''}
+    <div class="stat-cards"><div class="stat pending"><div class="n">${c.Pending}</div><div class="l">Pending</div></div><div class="stat ordered"><div class="n">${c.Ordered}</div><div class="l">Ordered</div></div><div class="stat available"><div class="n">${c.Available}</div><div class="l">Available on site</div></div><div class="stat installed"><div class="n">${c.Installed}</div><div class="l">Installed</div></div></div>
+    <div class="panel"><div class="phead"><span>Material Checklist &amp; Build Schedule</span><span style="font-size:12px;font-weight:500;color:var(--muted)">${c.Available+c.Installed}/${n} ready · update status as materials arrive</span></div>
+      <div style="overflow-x:auto"><table class="track-table"><thead><tr><th style="width:28px">#</th><th>Material / scope</th><th style="width:145px">Est. cost (MYR)</th><th style="width:145px">Status</th><th style="width:210px">Supplier / note</th></tr></thead><tbody>
+      ${pr.items.map((it,i)=>`<tr><td style="color:var(--faint)">${i+1}</td><td class="mat">${esc(it.name)}<span class="spec">${esc(it.spec)}${it.type==='addon'?' · add-on':''}</span></td>
+        <td class="num tnum">${fmtS(it.low)}–${fmtS(it.high)}</td>
+        <td><select onchange="setStatus('${pr.id}',${i},this.value)" style="border-color:${statusColor(it.status)};color:${statusColor(it.status)}">${STATUSES.map(s=>`<option ${s===it.status?'selected':''}>${s}</option>`).join('')}</select></td>
+        <td><input class="note" value="${esc(it.note)}" placeholder="supplier / ETA / remark" onchange="setNote('${pr.id}',${i},this.value)"></td></tr>`).join('')}
+      </tbody></table></div></div>
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap"><button class="btn ghost sm" onclick="markAll('${pr.id}','Available')">Mark all available</button><button class="btn ghost sm" onclick="window.print()">Print checklist</button><div style="flex:1"></div><button class="btn danger sm" onclick="deleteProject('${pr.id}')">Delete project</button></div>`;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function statusColor(s){return{Pending:'#8795ab',Ordered:'#c47f04',Available:'#178a4c',Installed:'#1c4a80'}[s];}
+function setStatus(id,i,v){const all=store.get();const pr=all.find(p=>p.id===id);pr.items[i].status=v;store.set(all);openProject(id);}
+function setNote(id,i,v){const all=store.get();const pr=all.find(p=>p.id===id);pr.items[i].note=v;store.set(all);}
+function setStage(id,v){const all=store.get();const pr=all.find(p=>p.id===id);pr.stage=v;store.set(all);openProject(id);toast('Stage → '+v,true);}
+function markAll(id,v){const all=store.get();const pr=all.find(p=>p.id===id);pr.items.forEach(it=>it.status=v);store.set(all);openProject(id);toast('All items marked '+v,true);}
+function deleteProject(id){if(!confirm('Delete this build project? This cannot be undone.'))return;store.set(store.get().filter(p=>p.id!==id));renderProjects();toast('Project deleted');}
+
+/* ================= COMPANY / BACKUP ================= */
+function openCompany(){const c=company.get();
+  $('#utilInner').innerHTML=`<div class="mhead"><div><div class="code">SETTINGS</div><h3>Company Profile &amp; Pricing</h3><div class="bf">Appears on every quotation. Set a markup to quote clients above cost.</div></div><button class="x" onclick="closeOverlay('utilModal')">×</button></div>
+    <div class="mbody"><div class="field"><label>Company name</label><input id="coName" value="${esc(c.name)}"></div>
+      <div class="frow"><div class="field"><label>Phone</label><input id="coPhone" value="${esc(c.phone)}" placeholder="e.g. 088-123456"></div><div class="field"><label>Business reg. no</label><input id="coReg" value="${esc(c.reg)}" placeholder="e.g. 20230012345 (SA)"></div></div>
+      <div class="field"><label>Address</label><input id="coAddr" value="${esc(c.address)}"></div>
+      <div class="frow"><div class="field"><label>Quote markup / margin (%)</label><input id="coMarkup" type="number" min="0" max="200" value="${c.markup}"> </div>
+        <div class="field"><label>Deposit to start (%)</label><input id="coDep" type="number" min="0" max="100" value="${c.deposit}"></div></div>
+      <div style="font-size:11.5px;color:var(--muted);background:var(--blue-soft);padding:9px 12px;border-radius:8px">Markup converts your <b>cost estimate</b> into the <b>client price</b> shown on quotes &amp; WhatsApp. Set 0 to quote at cost.</div></div>
+    <div class="mfoot"><button class="btn ghost sm" onclick="closeOverlay('utilModal')">Cancel</button><button class="btn" onclick="saveCompany()">Save settings</button></div>`;
+  $('#utilModal').classList.add('open');}
+function saveCompany(){const c={name:$('#coName').value.trim()||'Sabah Container Solutions',phone:$('#coPhone').value.trim(),reg:$('#coReg').value.trim(),address:$('#coAddr').value.trim(),markup:Math.max(0,+$('#coMarkup').value||0),deposit:Math.min(100,Math.max(0,+$('#coDep').value||0))};company.set(c);applyCompany();closeOverlay('utilModal');if(state.pkg)renderEstimator();toast('Company settings saved',true);}
+function applyCompany(){const c=company.get();$('#topCoName').textContent=c.name;$('#markInit').textContent=(c.name||'S')[0].toUpperCase();}
+function openBackup(){const n=store.get().length;
+  $('#utilInner').innerHTML=`<div class="mhead"><div><div class="code">DATA</div><h3>Backup &amp; Restore</h3><div class="bf">Your ${n} project(s) live in this browser only. Export a backup file to keep them safe or move to another PC.</div></div><button class="x" onclick="closeOverlay('utilModal')">×</button></div>
+    <div class="mbody"><p style="font-size:13px;color:var(--muted);margin-bottom:14px">Export downloads a <b>.json</b> file with all projects and company settings. Import replaces current data with a backup file.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" onclick="exportData()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export backup</button>
+      <label class="btn ghost" style="cursor:pointer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>Import backup<input type="file" accept="application/json" style="display:none" onchange="importData(event)"></label></div></div>
+    <div class="mfoot"><span style="font-size:12px;color:var(--faint)">Tip: export weekly, and after adding new clients.</span></div>`;
+  $('#utilModal').classList.add('open');}
+function exportData(){const data={exported:new Date().toISOString(),company:company.get(),projects:store.get()};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sabah-container-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('Backup exported',true);}
+function importData(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.projects)throw 0;if(!confirm('Replace current data with this backup? Current projects will be overwritten.'))return;store.set(d.projects);if(d.company)company.set(d.company);applyCompany();updateCount();closeOverlay('utilModal');renderProjects();toast('Backup restored',true);}catch(e){toast('Invalid backup file');}};r.readAsText(f);}
+
+/* ================= INIT ================= */
+$('#hsPkg').textContent=PACKAGES.length;
+applyCompany();renderFilters();renderCatalog();renderEstimator();updateCount();
+</script>
+</body>
+</html>
